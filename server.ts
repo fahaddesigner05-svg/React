@@ -1,4 +1,3 @@
-import './env-setup.js';
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';

@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import express from 'express';
 import dbConnect from '../src/lib/mongodb.js';
 import Project from '../src/models/Project.js';
