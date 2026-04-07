@@ -26,7 +26,7 @@ app.get('/api/upload/sign', (req, res) => {
     const timestamp = Math.round((new Date()).getTime() / 1000);
     const signature = cloudinary.utils.api_sign_request(
       { timestamp: timestamp, folder: 'portfolio' },
-      process.env.CLOUDINARY_API_SECRET!
+      process.env.CLOUDINARY_API_SECRET || ''
     );
     res.status(200).json({
       success: true,
@@ -36,7 +36,7 @@ app.get('/api/upload/sign', (req, res) => {
       api_key: process.env.CLOUDINARY_API_KEY,
       folder: 'portfolio'
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -47,7 +47,7 @@ app.get('/api/projects', async (req, res) => {
     await dbConnect();
     const projects = await Project.find({}).sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: projects });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -57,7 +57,7 @@ app.post('/api/projects', async (req, res) => {
     await dbConnect();
     const project = await Project.create(req.body);
     res.status(201).json({ success: true, data: project });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -70,7 +70,7 @@ app.put('/api/projects', async (req, res) => {
     const project = await Project.findByIdAndUpdate(id, updateData, { returnDocument: 'after' });
     if (!project) return res.status(404).json({ success: false, error: 'Project not found' });
     res.status(200).json({ success: true, data: project });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -83,7 +83,7 @@ app.delete('/api/projects', async (req, res) => {
     const project = await Project.findByIdAndDelete(id);
     if (!project) return res.status(404).json({ success: false, error: 'Project not found' });
     res.status(200).json({ success: true, data: project });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -96,7 +96,7 @@ app.post('/api/contact', async (req, res) => {
     if (!name || !email || !message) return res.status(400).json({ success: false, error: 'Please provide all fields.' });
     const newMessage = await Message.create({ name, email, message, service, budget });
     res.status(201).json({ success: true, data: newMessage });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -109,7 +109,7 @@ app.post('/api/feedback', async (req, res) => {
     if (!projectId || !name || !email || !message || !rating) return res.status(400).json({ success: false, error: 'Please provide all fields.' });
     const newFeedback = await Feedback.create({ projectId, name, email, message, rating });
     res.status(201).json({ success: true, data: newFeedback });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -121,7 +121,7 @@ app.get('/api/feedback', async (req, res) => {
     const query = projectId ? { projectId } : {};
     const feedbacks = await Feedback.find(query).sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: feedbacks });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -134,7 +134,7 @@ app.delete('/api/feedback', async (req, res) => {
     const feedback = await Feedback.findByIdAndDelete(id);
     if (!feedback) return res.status(404).json({ success: false, error: 'Feedback not found' });
     res.status(200).json({ success: true, data: feedback });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -145,7 +145,7 @@ app.get('/api/messages', async (req, res) => {
     await dbConnect();
     const messages = await Message.find({}).sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: messages });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -158,7 +158,7 @@ app.delete('/api/messages', async (req, res) => {
     const message = await Message.findByIdAndDelete(id);
     if (!message) return res.status(404).json({ success: false, error: 'Message not found' });
     res.status(200).json({ success: true, data: message });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -170,7 +170,7 @@ app.get('/api/admin', async (req, res) => {
     let admin = await Admin.findOne({});
     if (!admin) admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123' });
     res.status(200).json({ success: true, data: { username: admin.username, password: admin.password } });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -183,7 +183,7 @@ app.post('/api/admin', async (req, res) => {
     if (!admin) admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123' });
     if (username === admin.username && password === admin.password) res.status(200).json({ success: true });
     else res.status(401).json({ success: false, error: 'Invalid credentials' });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -198,7 +198,7 @@ app.put('/api/admin', async (req, res) => {
     admin.password = password;
     await admin.save();
     res.status(200).json({ success: true, data: { username: admin.username, password: admin.password } });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -210,7 +210,7 @@ app.get('/api/settings', async (req, res) => {
     let settings = await Settings.findOne({});
     if (!settings) settings = await Settings.create({ aboutVideoLink: '' });
     res.status(200).json({ success: true, data: settings });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -222,7 +222,7 @@ app.put('/api/settings', async (req, res) => {
     if (!settings) settings = await Settings.create(req.body);
     else settings = await Settings.findOneAndUpdate({}, req.body, { new: true });
     res.status(200).json({ success: true, data: settings });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -237,7 +237,7 @@ app.get('/api/analytics', async (req, res) => {
       clicks: analytics.find(a => a.type === 'clicks')?.count || 0,
     };
     res.status(200).json({ success: true, data });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -249,7 +249,7 @@ app.post('/api/analytics', async (req, res) => {
     if (!type || !['views', 'clicks'].includes(type)) return res.status(400).json({ success: false, error: 'Invalid analytic type' });
     const analytic = await Analytics.findOneAndUpdate({ type }, { $inc: { count: 1 } }, { upsert: true, returnDocument: 'after' });
     res.status(200).json({ success: true, data: analytic });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -259,7 +259,7 @@ app.delete('/api/analytics/reset', async (req, res) => {
     await dbConnect();
     await Analytics.updateMany({}, { $set: { count: 0 } });
     res.status(200).json({ success: true, message: 'Analytics reset successfully' });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -276,7 +276,7 @@ app.post('/api/projects/seed', async (req, res) => {
     await Project.deleteMany({});
     const projects = await Project.insertMany(sampleProjects);
     res.status(201).json({ success: true, data: projects });
-  } catch (error: any) {
+  } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
 });
