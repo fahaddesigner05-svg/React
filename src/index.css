@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+  .bg-cyber {
+    @apply bg-[#0b0c10];
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
