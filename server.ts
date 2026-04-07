@@ -1,17 +1,17 @@
-import './env-setup';
+import './env-setup.js';
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import dbConnect from './src/lib/mongodb';
-import Project from './src/models/Project';
-import Message from './src/models/Message';
-import Admin from './src/models/Admin';
-import Analytics from './src/models/Analytics';
-import Settings from './src/models/Settings';
-import Feedback from './src/models/Feedback';
+import dbConnect from './src/lib/mongodb.js';
+import Project from './src/models/Project.js';
+import Message from './src/models/Message.js';
+import Admin from './src/models/Admin.js';
+import Analytics from './src/models/Analytics.js';
+import Settings from './src/models/Settings.js';
+import Feedback from './src/models/Feedback.js';
 
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
