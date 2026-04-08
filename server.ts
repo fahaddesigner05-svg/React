@@ -1,21 +1,19 @@
+import './env-setup';
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
-import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import dbConnect from './src/lib/mongodb.js';
-import Project from './src/models/Project.js';
-import Message from './src/models/Message.js';
-import Admin from './src/models/Admin.js';
-import Analytics from './src/models/Analytics.js';
-import Settings from './src/models/Settings.js';
-import Feedback from './src/models/Feedback.js';
+import dbConnect from './src/lib/mongodb';
+import Project from './src/models/Project';
+import Message from './src/models/Message';
+import Admin from './src/models/Admin';
+import Analytics from './src/models/Analytics';
+import Settings from './src/models/Settings';
+import Feedback from './src/models/Feedback';
 
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
-
-dotenv.config();
 
 // Configure Cloudinary
 const cloudinaryConfig = {
@@ -24,13 +22,8 @@ const cloudinaryConfig = {
   api_secret: process.env.CLOUDINARY_API_SECRET || 'UmDN63xbyl0lmVb4-uZAjXTs6hs'
 };
 
-if (process.env.CLOUDINARY_URL && process.env.CLOUDINARY_URL.startsWith('cloudinary://')) {
-  cloudinary.config({
-    cloudinary_url: process.env.CLOUDINARY_URL
-  });
-} else {
-  cloudinary.config(cloudinaryConfig);
-}
+cloudinary.config(cloudinaryConfig);
+
 
 // Configure Multer (Only for small metadata if needed, but we'll use JSON for projects)
 const upload = multer({ 
@@ -385,14 +378,26 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 async function startServer() {
+  console.log('Starting server initialization...');
+  
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
+    console.log('Setting up Vite middleware...');
+    try {
+      const vite = await createViteServer({
+        server: { 
+          middlewareMode: true,
+          hmr: false // Explicitly disable HMR to avoid websocket issues
+        },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+      console.log('Vite middleware set up.');
+    } catch (err) {
+      console.error('Failed to create Vite server:', err);
+    }
   } else {
+    console.log('Setting up production static file serving...');
     // Serve static files in production
     app.use(express.static('dist'));
     app.get('*', (req, res) => {
