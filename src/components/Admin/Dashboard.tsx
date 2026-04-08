@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { SiFigma, SiCanva, SiSketch, SiInvision, SiFramer, SiReact, SiWordpress, SiElementor, SiWebflow, SiWix, SiShopify } from 'react-icons/si';
 import { DiPhotoshop, DiIllustrator } from 'react-icons/di';
 import { 
@@ -25,7 +25,9 @@ import {
   Code,
   Video,
   Upload,
-  Star
+  Star,
+  Menu,
+  X
 } from 'lucide-react';
 
 const getIcon = (name: string, type: string) => {
@@ -88,6 +90,7 @@ const Dashboard: React.FC = () => {
   const [isUploadingAboutImage, setIsUploadingAboutImage] = useState(false);
   const [isUploadingProjectImage, setIsUploadingProjectImage] = useState(false);
   const [isUploadingProjectVideo, setIsUploadingProjectVideo] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Message Modal State
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
@@ -583,32 +586,55 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white flex admin-area">
+    <div className="min-h-screen bg-[#0b0c10] text-white flex admin-area relative overflow-hidden">
+      {/* Sidebar Overlay for Mobile */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-64 border-r border-white/5 bg-black/20 backdrop-blur-xl flex flex-col">
-        <div className="p-8">
+      <aside className={`
+        fixed md:relative z-50 w-64 h-full border-r border-white/5 bg-[#0b0c10] md:bg-black/20 backdrop-blur-xl flex flex-col
+        transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div className="p-8 flex items-center justify-between">
           <h2 className="text-xl font-black tracking-tighter">
             FAHAD<span className="text-cyan-400">ADMIN</span>
           </h2>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden p-2 text-gray-400 hover:text-white"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         <nav className="flex-1 px-4 space-y-2">
           <button 
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-cyan-600/10 text-cyan-400 border border-cyan-400/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
           >
             <LayoutDashboard className="w-5 h-5" />
             <span className="font-medium">Dashboard</span>
           </button>
           <button 
-            onClick={() => setActiveTab('projects')}
+            onClick={() => { setActiveTab('projects'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'projects' ? 'bg-cyan-600/10 text-cyan-400 border border-cyan-400/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
           >
             <Briefcase className="w-5 h-5" />
             <span className="font-medium">Projects</span>
           </button>
           <button 
-            onClick={() => setActiveTab('messages')}
+            onClick={() => { setActiveTab('messages'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${activeTab === 'messages' ? 'bg-cyan-600/10 text-cyan-400 border border-cyan-400/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
           >
             <div className="flex items-center space-x-3">
@@ -622,21 +648,21 @@ const Dashboard: React.FC = () => {
             )}
           </button>
           <button 
-            onClick={() => setActiveTab('feedbacks')}
+            onClick={() => { setActiveTab('feedbacks'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'feedbacks' ? 'bg-cyan-600/10 text-cyan-400 border border-cyan-400/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
           >
             <Star className="w-5 h-5" />
             <span className="font-medium">Feedbacks</span>
           </button>
           <button 
-            onClick={() => setActiveTab('portfolio-videos')}
+            onClick={() => { setActiveTab('portfolio-videos'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'portfolio-videos' ? 'bg-cyan-600/10 text-cyan-400 border border-cyan-400/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
           >
             <Video className="w-5 h-5" />
             <span className="font-medium">Portfolio Videos</span>
           </button>
           <button 
-            onClick={() => setActiveTab('settings')}
+            onClick={() => { setActiveTab('settings'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'settings' ? 'bg-cyan-600/10 text-cyan-400 border border-cyan-400/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
           >
             <Settings className="w-5 h-5" />
@@ -656,10 +682,18 @@ const Dashboard: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-cyber">
+      <main className="flex-1 h-screen overflow-y-auto bg-cyber relative">
         {/* Header */}
-        <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-black/20 backdrop-blur-sm sticky top-0 z-20">
-          <h1 className="text-xl font-bold capitalize">{activeTab}</h1>
+        <header className="h-20 border-b border-white/5 flex items-center justify-between px-4 md:px-8 bg-black/20 backdrop-blur-sm sticky top-0 z-30">
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 text-gray-400 hover:text-white"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-bold capitalize">{activeTab.replace('-', ' ')}</h1>
+          </div>
           <div className="flex items-center space-x-4">
             {activeTab === 'projects' && (
               <button 
@@ -675,7 +709,7 @@ const Dashboard: React.FC = () => {
           </div>
         </header>
 
-        <div className="p-8 space-y-8">
+        <div className="p-4 md:p-8 space-y-8">
           {activeTab === 'dashboard' && (
             <>
               {/* DB Status Warning */}

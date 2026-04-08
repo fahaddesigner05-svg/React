@@ -61,6 +61,21 @@ const MainSite: React.FC = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
+
+    // Handle initial hash scroll
+    if (window.location.hash) {
+      const id = window.location.hash.replace('#', '');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          window.scrollTo({
+            top: element.offsetTop - 80,
+            behavior: 'auto'
+          });
+        }
+      }, 100);
+    }
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };

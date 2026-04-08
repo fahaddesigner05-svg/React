@@ -73,11 +73,11 @@ const AllProjects: React.FC = () => {
       <header className="fixed top-0 left-0 right-0 z-50 p-6 bg-black/20 backdrop-blur-md border-b border-white/5">
         <div className="container mx-auto flex items-center justify-between">
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/#projects')}
             className="flex items-center space-x-2 text-gray-400 hover:text-cyan-400 transition-colors font-bold uppercase tracking-widest text-xs"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
+            <span>Back to Portfolio</span>
           </button>
           <div className="text-sm font-black tracking-tighter">
             FAHAD<span className="text-cyan-400">MALIK</span>
