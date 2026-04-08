@@ -160,8 +160,8 @@ const About: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6">
             {stats.map((stat, i) => (
-              <div key={i} className={`p-6 sm:p-4 glass-panel rounded-2xl border border-white/5 shadow-lg ${stat.glow} transition-all duration-500 cursor-pointer group/stat overflow-hidden relative hover:-translate-y-1 hover:border-white/20 ${stat.hoverBg} flex flex-col items-center sm:items-start text-center sm:text-left`}>
-                <div className={`text-3xl sm:text-2xl md:text-3xl font-black mb-1 ${stat.color} ${stat.hoverColor} group-hover/stat:scale-110 transition-all duration-500 origin-center sm:origin-left relative z-10`}>{stat.value}</div>
+              <div key={i} className={`p-6 sm:p-4 glass-panel rounded-2xl border border-white/5 shadow-lg ${stat.glow} transition-all duration-500 cursor-pointer group/stat overflow-hidden relative hover:border-white/20 ${stat.hoverBg} flex flex-col items-center sm:items-start text-center sm:text-left`}>
+                <div className={`text-3xl sm:text-2xl md:text-3xl font-black mb-1 ${stat.color} ${stat.hoverColor} transition-all duration-500 origin-center sm:origin-left relative z-10`}>{stat.value}</div>
                 <div className={`text-[10px] uppercase font-bold text-gray-500 tracking-wider leading-tight ${stat.hoverLabelColor} transition-colors duration-500 relative z-10`}>{stat.label}</div>
               </div>
             ))}
