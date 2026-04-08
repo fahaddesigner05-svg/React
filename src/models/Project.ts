@@ -5,6 +5,9 @@ const projectSchema = new mongoose.Schema({
   category: String,
   description: String,
   img: String,
+  images: [String],
+  coverImg: String,
+  videoLink: String,
   color: String,
   role: String,
   timeline: String,
@@ -12,7 +15,8 @@ const projectSchema = new mongoose.Schema({
   techStack: [{
     name: String,
     iconType: String
-  }]
+  }],
+  showOnHome: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default (mongoose.models as any).Project || mongoose.model('Project', projectSchema);

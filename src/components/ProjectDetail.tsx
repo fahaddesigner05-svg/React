@@ -156,6 +156,12 @@ const ProjectDetail: React.FC = () => {
     fetchProject();
   }, [id]);
 
+  const getYouTubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-[#0b0c10] flex items-center justify-center z-[200]">
@@ -353,45 +359,55 @@ const ProjectDetail: React.FC = () => {
         >
           {/* Main Media */}
           <div className="w-full flex items-center justify-center overflow-hidden">
-            {project.videoLink && (project.videoLink.includes('youtube.com/watch?v=') || project.videoLink.includes('youtu.be/')) ? (
-              <div className="aspect-video w-full max-w-full">
-                <iframe 
-                  src={`https://www.youtube.com/embed/${project.videoLink.includes('v=') ? project.videoLink.split('v=')[1].split('&')[0] : project.videoLink.split('/').pop()}`}
-                  className="w-full h-full"
-                  frameBorder="0"
-                  allowFullScreen
-                ></iframe>
-              </div>
-            ) : project.videoLink ? (
-              <video 
-                src={project.videoLink} 
-                className="w-full h-auto"
-                autoPlay
-                muted
-                loop
-                playsInline
-                controls
-                onError={(e) => {
-                  const video = e.target as HTMLVideoElement;
-                  video.style.display = 'none';
-                  const parent = video.parentElement;
-                  if (parent) {
-                    const img = document.createElement('img');
-                    img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
-                    img.className = "w-full h-auto";
-                    img.referrerPolicy = "no-referrer";
-                    parent.appendChild(img);
-                  }
-                }}
-              />
-            ) : project.coverImg || project.img ? (
-              <img 
-                src={project.coverImg || project.img} 
-                alt={project.title}
-                className="w-full h-auto"
-                referrerPolicy="no-referrer"
-              />
-            ) : null}
+            {(() => {
+              const ytId = project.videoLink ? getYouTubeId(project.videoLink) : null;
+              if (ytId) {
+                return (
+                  <div className="aspect-video w-full max-w-full">
+                    <iframe 
+                      src={`https://www.youtube.com/embed/${ytId}`}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                );
+              } else if (project.videoLink) {
+                return (
+                  <video 
+                    src={project.videoLink || undefined} 
+                    className="w-full h-auto"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    onError={(e) => {
+                      const video = e.target as HTMLVideoElement;
+                      video.style.display = 'none';
+                      const parent = video.parentElement;
+                      if (parent) {
+                        const img = document.createElement('img');
+                        img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
+                        img.className = "w-full h-auto";
+                        img.referrerPolicy = "no-referrer";
+                        parent.appendChild(img);
+                      }
+                    }}
+                  />
+                );
+              } else if (project.coverImg || project.img) {
+                return (
+                  <img 
+                    src={project.coverImg || project.img || undefined} 
+                    alt={project.title}
+                    className="w-full h-auto"
+                    referrerPolicy="no-referrer"
+                  />
+                );
+              }
+              return null;
+            })()}
           </div>
 
           {/* Gallery Images */}

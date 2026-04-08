@@ -11,6 +11,7 @@ interface ProjectData {
   color: string;
   description: string;
   videoLink?: string;
+  showOnHome?: boolean;
 }
 
 const Projects: React.FC = () => {
@@ -28,7 +29,10 @@ const Projects: React.FC = () => {
         if (contentType && contentType.indexOf("application/json") !== -1) {
           const result = await response.json();
           if (result.success) {
-            setProjects(result.data);
+            const featuredProjects = result.data
+              .filter((p: ProjectData) => p.showOnHome)
+              .slice(0, 6);
+            setProjects(featuredProjects);
           } else {
             throw new Error(result.error || 'Failed to fetch projects');
           }
@@ -85,6 +89,12 @@ const Projects: React.FC = () => {
     );
   }
 
+  const getYouTubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   return (
     <div className="container mx-auto px-6">
       <style>{`
@@ -101,77 +111,81 @@ const Projects: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {projects.length > 0 ? (
-          projects.map((project, idx) => (
-            <div 
-              key={project._id} 
-              onClick={() => handleProjectClick(project.videoLink)}
-              className="group relative overflow-hidden rounded-3xl cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10 opacity-60 group-hover:opacity-80 transition-opacity"></div>
-              
-              {project.videoLink && (project.videoLink.includes('youtube.com/watch?v=') || project.videoLink.includes('youtu.be/')) ? (
-                <iframe 
-                  src={`https://www.youtube.com/embed/${project.videoLink.includes('v=') ? project.videoLink.split('v=')[1].split('&')[0] : project.videoLink.split('/').pop()}`}
-                  className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              ) : project.videoLink ? (
-                <video 
-                  src={project.videoLink} 
-                  className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  onError={(e) => {
-                    const video = e.target as HTMLVideoElement;
-                    video.style.display = 'none';
-                    const parent = video.parentElement;
-                    if (parent) {
-                      const img = document.createElement('img');
-                      img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
-                      img.className = "w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110";
-                      img.referrerPolicy = "no-referrer";
-                      parent.appendChild(img);
-                    }
-                  }}
-                />
-              ) : (
-                <img 
-                  src={project.coverImg || project.img} 
-                  alt={project.title}
-                  className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
-                  referrerPolicy="no-referrer"
-                />
-              )}
-              
-              <div className="absolute bottom-0 left-0 p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 bg-cyan-900/40 px-3 py-1 rounded-full mb-3 inline-block">
-                  {project.category}
-                </span>
-                <h4 className="text-3xl font-bold text-white mb-2 group-hover:text-white transition-all duration-500">{project.title}</h4>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/project/${project._id}`);
-                  }}
-                  className="mt-4 flex items-center space-x-3 group/btn"
-                >
-                  <div className="px-6 py-2.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm group-hover/btn:border-cyan-400 group-hover/btn:bg-cyan-400/10 transition-all duration-300 flex items-center space-x-3">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 group-hover/btn:text-white transition-colors">Case Study</span>
-                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover/btn:bg-cyan-400 group-hover/btn:text-black transition-all duration-300">
-                      <i className="fas fa-arrow-right text-[10px] group-hover/btn:translate-x-0.5 transition-transform"></i>
+          projects.map((project, idx) => {
+            const ytId = project.videoLink ? getYouTubeId(project.videoLink) : null;
+            
+            return (
+              <div 
+                key={project._id} 
+                onClick={() => handleProjectClick(project.videoLink)}
+                className="group relative overflow-hidden rounded-3xl cursor-pointer"
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10 opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                
+                {ytId ? (
+                  <iframe 
+                    src={`https://www.youtube.com/embed/${ytId}`}
+                    className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                ) : project.videoLink ? (
+                  <video 
+                    src={project.videoLink || undefined} 
+                    className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    onError={(e) => {
+                      const video = e.target as HTMLVideoElement;
+                      video.style.display = 'none';
+                      const parent = video.parentElement;
+                      if (parent) {
+                        const img = document.createElement('img');
+                        img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
+                        img.className = "w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110";
+                        img.referrerPolicy = "no-referrer";
+                        parent.appendChild(img);
+                      }
+                    }}
+                  />
+                ) : (
+                  <img 
+                    src={project.coverImg || project.img || undefined} 
+                    alt={project.title}
+                    className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                
+                <div className="absolute bottom-0 left-0 p-8 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 bg-cyan-900/40 px-3 py-1 rounded-full mb-3 inline-block">
+                    {project.category}
+                  </span>
+                  <h4 className="text-3xl font-bold text-white mb-2 group-hover:text-white transition-all duration-500">{project.title}</h4>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/project/${project._id}`);
+                    }}
+                    className="mt-4 flex items-center space-x-3 group/btn"
+                  >
+                    <div className="px-6 py-2.5 rounded-full border border-white/20 bg-white/5 backdrop-blur-sm group-hover/btn:border-cyan-400 group-hover/btn:bg-cyan-400/10 transition-all duration-300 flex items-center space-x-3">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50 group-hover/btn:text-white transition-colors">Case Study</span>
+                      <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover/btn:bg-cyan-400 group-hover/btn:text-black transition-all duration-300">
+                        <i className="fas fa-arrow-right text-[10px] group-hover/btn:translate-x-0.5 transition-transform"></i>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              </div>
+                  </button>
+                </div>
 
-              {/* Hover Accent Glow */}
-              <div className={`absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-[80px] pointer-events-none transition-colors duration-500 ${idx % 2 === 0 ? 'bg-cyan-500/0 group-hover:bg-cyan-500/40' : 'bg-purple-500/0 group-hover:bg-purple-500/40'}`}></div>
-            </div>
-          ))
+                {/* Hover Accent Glow */}
+                <div className={`absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-[80px] pointer-events-none transition-colors duration-500 ${idx % 2 === 0 ? 'bg-cyan-500/0 group-hover:bg-cyan-500/40' : 'bg-purple-500/0 group-hover:bg-purple-500/40'}`}></div>
+              </div>
+            );
+          })
         ) : (
           <div className="col-span-2 text-center py-20 text-gray-500">
             <p className="mb-4 italic">No projects found. Add some to your database!</p>

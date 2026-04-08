@@ -13,6 +13,7 @@ interface ProjectData {
   color: string;
   description: string;
   videoLink?: string;
+  showOnHome?: boolean;
 }
 
 const AllProjects: React.FC = () => {
@@ -58,6 +59,12 @@ const AllProjects: React.FC = () => {
   }, [searchTerm, activeCategory, projects]);
 
   const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
+
+  const getYouTubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white selection:bg-cyan-500 selection:text-white bg-cyber">
@@ -124,59 +131,63 @@ const AllProjects: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project, idx) => (
-              <motion.div
-                key={project._id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.05 }}
-                onClick={() => navigate(`/project/${project._id}`)}
-                className="group relative overflow-hidden rounded-3xl cursor-pointer bg-white/5 border border-white/10"
-              >
-                <div className="h-64 relative overflow-hidden">
-                  {project.videoLink && (project.videoLink.includes('youtube.com/watch?v=') || project.videoLink.includes('youtu.be/')) ? (
-                    <div className="w-full h-full bg-black flex items-center justify-center">
-                      <i className="fab fa-youtube text-4xl text-red-600"></i>
+            {filteredProjects.map((project, idx) => {
+              const ytId = project.videoLink ? getYouTubeId(project.videoLink) : null;
+              
+              return (
+                <motion.div
+                  key={project._id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.05 }}
+                  onClick={() => navigate(`/project/${project._id}`)}
+                  className="group relative overflow-hidden rounded-3xl cursor-pointer bg-white/5 border border-white/10"
+                >
+                  <div className="h-64 relative overflow-hidden">
+                    {ytId ? (
+                      <div className="w-full h-full bg-black flex items-center justify-center">
+                        <i className="fab fa-youtube text-4xl text-red-600"></i>
+                      </div>
+                    ) : project.videoLink ? (
+                      <video 
+                        src={project.videoLink || undefined} 
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+                        muted
+                        playsInline
+                        onError={(e) => {
+                          const video = e.target as HTMLVideoElement;
+                          video.style.display = 'none';
+                          const parent = video.parentElement;
+                          if (parent) {
+                            const img = document.createElement('img');
+                            img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
+                            img.className = "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110";
+                            img.referrerPolicy = "no-referrer";
+                            parent.appendChild(img);
+                          }
+                        }}
+                        onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
+                        onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                      />
+                    ) : (
+                      <img 
+                        src={project.coverImg || project.img || undefined} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                      <span className="text-[10px] font-black uppercase tracking-widest bg-cyan-400 text-black px-3 py-1 rounded-full">View Case Study</span>
                     </div>
-                  ) : project.videoLink ? (
-                    <video 
-                      src={project.videoLink} 
-                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
-                      muted
-                      playsInline
-                      onError={(e) => {
-                        const video = e.target as HTMLVideoElement;
-                        video.style.display = 'none';
-                        const parent = video.parentElement;
-                        if (parent) {
-                          const img = document.createElement('img');
-                          img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
-                          img.className = "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110";
-                          img.referrerPolicy = "no-referrer";
-                          parent.appendChild(img);
-                        }
-                      }}
-                      onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
-                      onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
-                    />
-                  ) : (
-                    <img 
-                      src={project.coverImg || project.img} 
-                      alt={project.title} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      referrerPolicy="no-referrer"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                    <span className="text-[10px] font-black uppercase tracking-widest bg-cyan-400 text-black px-3 py-1 rounded-full">View Case Study</span>
                   </div>
-                </div>
-                <div className="p-6">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-2 block">{project.category}</span>
-                  <h3 className="text-xl font-bold">{project.title}</h3>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="p-6">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 mb-2 block">{project.category}</span>
+                    <h3 className="text-xl font-bold">{project.title}</h3>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         )}
 

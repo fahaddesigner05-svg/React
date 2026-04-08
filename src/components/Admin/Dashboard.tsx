@@ -108,7 +108,8 @@ const Dashboard: React.FC = () => {
     role: 'Lead Designer',
     timeline: 'March 2026',
     goals: [] as string[],
-    techStack: [] as { name: string; iconType: string }[]
+    techStack: [] as { name: string; iconType: string }[],
+    showOnHome: false
   });
 
   useEffect(() => {
@@ -487,6 +488,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const getYouTubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   const handleOpenModal = (project: any = null) => {
     if (project) {
       setEditingProject(project);
@@ -502,7 +509,8 @@ const Dashboard: React.FC = () => {
         role: project.role || 'Lead Designer',
         timeline: project.timeline || 'March 2026',
         goals: project.goals || [],
-        techStack: project.techStack || []
+        techStack: project.techStack || [],
+        showOnHome: project.showOnHome || false
       });
     } else {
       setEditingProject(null);
@@ -518,7 +526,8 @@ const Dashboard: React.FC = () => {
         role: 'Lead Designer',
         timeline: 'March 2026',
         goals: [],
-        techStack: []
+        techStack: [],
+        showOnHome: false
       });
     }
     setIsModalOpen(true);
@@ -531,7 +540,13 @@ const Dashboard: React.FC = () => {
       
       // Ensure img has a fallback if videoLink is provided but no images
       const dataToSave = { ...formData };
-      if (dataToSave.videoLink && !dataToSave.img && dataToSave.images.length === 0) {
+      const ytId = dataToSave.videoLink ? getYouTubeId(dataToSave.videoLink) : null;
+      
+      if (ytId && !dataToSave.img && dataToSave.images.length === 0) {
+        const thumb = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
+        dataToSave.img = thumb;
+        dataToSave.coverImg = thumb;
+      } else if (dataToSave.videoLink && !dataToSave.img && dataToSave.images.length === 0) {
         dataToSave.img = ''; // Allow empty string for img if video is present
       }
 
@@ -831,38 +846,47 @@ const Dashboard: React.FC = () => {
                   projects.map((project) => (
                     <div key={project._id} className="glass-panel rounded-2xl border border-white/5 overflow-hidden group">
                       <div className="h-40 relative">
-                        {project.videoLink && (project.videoLink.includes('youtube.com') || project.videoLink.includes('youtu.be')) ? (
-                          <div className="w-full h-full bg-black flex items-center justify-center">
-                            <i className="fab fa-youtube text-4xl text-red-600"></i>
-                          </div>
-                        ) : project.videoLink ? (
-                          <video 
-                            src={project.videoLink} 
-                            className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
-                            muted
-                            playsInline
-                            onError={(e) => {
-                              // Fallback if video fails to load
-                              (e.target as HTMLVideoElement).style.display = 'none';
-                              const parent = (e.target as HTMLVideoElement).parentElement;
-                              if (parent) {
-                                const img = document.createElement('img');
-                                img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
-                                img.className = "w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity";
-                                parent.appendChild(img);
-                              }
-                            }}
-                            onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
-                            onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
-                          />
-                        ) : (
-                          <img 
-                            src={project.coverImg || project.img} 
-                            alt={project.title} 
-                            className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
-                            referrerPolicy="no-referrer"
-                          />
-                        )}
+                        {(() => {
+                          const ytId = project.videoLink ? getYouTubeId(project.videoLink) : null;
+                          if (ytId) {
+                            return (
+                              <div className="w-full h-full bg-black flex items-center justify-center">
+                                <i className="fab fa-youtube text-4xl text-red-600"></i>
+                              </div>
+                            );
+                          } else if (project.videoLink) {
+                            return (
+                              <video 
+                                src={project.videoLink || undefined} 
+                                className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+                                muted
+                                playsInline
+                                onError={(e) => {
+                                  // Fallback if video fails to load
+                                  (e.target as HTMLVideoElement).style.display = 'none';
+                                  const parent = (e.target as HTMLVideoElement).parentElement;
+                                  if (parent) {
+                                    const img = document.createElement('img');
+                                    img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
+                                    img.className = "w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity";
+                                    parent.appendChild(img);
+                                  }
+                                }}
+                                onMouseOver={(e) => e.currentTarget.play().catch(() => {})}
+                                onMouseOut={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                              />
+                            );
+                          } else {
+                            return (
+                              <img 
+                                src={project.coverImg || project.img || undefined} 
+                                alt={project.title} 
+                                className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
+                                referrerPolicy="no-referrer"
+                              />
+                            );
+                          }
+                        })()}
                         <div className="absolute top-2 right-2 flex space-x-2 z-10">
                           <button 
                             onClick={() => handleOpenModal(project)}
@@ -880,6 +904,9 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="p-4">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">{project.category}</span>
+                        {project.showOnHome && (
+                          <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded-full">Featured</span>
+                        )}
                         <h3 className="text-lg font-bold mt-1">{project.title}</h3>
                         <p className="text-sm text-gray-400 line-clamp-2 mt-2">{project.description}</p>
                       </div>
@@ -1094,7 +1121,7 @@ const Dashboard: React.FC = () => {
                         ></iframe>
                       ) : (
                         <video 
-                          src={settings.aboutVideoLink} 
+                          src={settings.aboutVideoLink || undefined} 
                           className="w-full h-full object-contain" 
                           controls 
                           onError={(e) => {
@@ -1154,7 +1181,7 @@ const Dashboard: React.FC = () => {
                   {settings.aboutPageImage && (
                     <div className="mt-4 aspect-video rounded-xl overflow-hidden border border-white/10">
                       <img 
-                        src={settings.aboutPageImage} 
+                        src={settings.aboutPageImage || undefined} 
                         alt="About Page Preview" 
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
@@ -1276,6 +1303,17 @@ const Dashboard: React.FC = () => {
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all resize-none"
                 ></textarea>
+              </div>
+              
+              <div className="flex items-center space-x-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+                <input 
+                  type="checkbox" 
+                  id="showOnHome"
+                  checked={formData.showOnHome}
+                  onChange={(e) => setFormData({...formData, showOnHome: e.target.checked})}
+                  className="w-5 h-5 rounded border-white/10 bg-black text-cyan-400 focus:ring-cyan-400"
+                />
+                <label htmlFor="showOnHome" className="text-sm font-bold text-gray-300 cursor-pointer">Show on Home Page (Featured)</label>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

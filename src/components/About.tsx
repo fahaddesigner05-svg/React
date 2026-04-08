@@ -144,9 +144,9 @@ const About: React.FC = () => {
         {/* Decorative Blur */}
         <div className="absolute top-1/2 left-0 w-64 h-64 bg-cyan-500/10 blur-[100px] pointer-events-none"></div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch">
-        {/* Left: Content */}
-        <div className="space-y-8 order-1 lg:order-1">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-12 items-stretch">
+        {/* Left: Top Content */}
+        <div className="space-y-8">
           <div>
             <h3 className="text-cyan-400 font-bold uppercase tracking-[0.3em] text-sm mb-2 text-left">Discovery</h3>
             <h2 className="text-4xl md:text-[3.5rem] font-extrabold leading-[1.1] tracking-tighter text-left max-w-xl">
@@ -166,78 +166,12 @@ const About: React.FC = () => {
               </div>
             ))}
           </div>
-
-          <div className="pt-8 w-full" ref={videoContainerRef}>
-            <div 
-              className="aspect-video glass-panel rounded-2xl border border-white/10 overflow-hidden relative group shadow-2xl"
-            >
-              {!showVideo ? (
-                <div 
-                  onClick={() => settings?.aboutVideoLink && setShowVideo(true)}
-                  className="absolute inset-0 w-full h-full cursor-pointer z-20"
-                >
-                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center group-hover:bg-black/40 transition-all duration-500 z-20">
-                    <div className="w-16 h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center bg-cyan-400/10 group-hover:bg-cyan-400 group-hover:scale-110 transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.3)] mb-2">
-                      <i className={`fas ${settings?.aboutVideoLink ? 'fa-play' : 'fa-video-slash'} text-cyan-400 group-hover:text-black text-xl ml-1`}></i>
-                    </div>
-                    <div className="text-gray-400 text-[10px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      {settings?.aboutVideoLink ? 'Click to Play Video' : 'No Video Configured'}
-                    </div>
-                  </div>
-
-                  {/* Video Placeholder Content */}
-                  {settings?.aboutVideoPlaceholder ? (
-                    <img 
-                      src={settings.aboutVideoPlaceholder} 
-                      alt="Video Placeholder" 
-                      className="absolute inset-0 w-full h-full object-cover object-center z-10"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 w-full h-full bg-[#0b0c10] z-10"></div>
-                  )}
-                </div>
-              ) : (
-                <div className="absolute inset-0 w-full h-full z-30 bg-black">
-                  {settings?.aboutVideoLink && (settings.aboutVideoLink.includes('youtube.com') || settings.aboutVideoLink.includes('youtu.be')) ? (
-                    <iframe 
-                      src={`https://www.youtube.com/embed/${settings.aboutVideoLink.includes('v=') ? settings.aboutVideoLink.split('v=')[1].split('&')[0] : settings.aboutVideoLink.split('/').pop()}?autoplay=1`}
-                      className="w-full h-full"
-                      frameBorder={0}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                  ) : settings?.aboutVideoLink ? (
-                    <video 
-                      src={settings.aboutVideoLink} 
-                      className="w-full h-full object-contain"
-                      controls
-                      autoPlay
-                      onError={(e) => {
-                        const video = e.target as HTMLVideoElement;
-                        video.style.display = 'none';
-                        const parent = video.parentElement;
-                        if (parent) {
-                          const placeholder = document.createElement('div');
-                          placeholder.className = "w-full h-full flex flex-col items-center justify-center bg-black text-gray-500 text-xs text-center p-8 space-y-4";
-                          placeholder.innerHTML = `
-                            <i class="fas fa-exclamation-triangle text-2xl text-amber-500"></i>
-                            <p>This video source is not supported or the link is invalid.<br/>Please use a direct .mp4 link or a YouTube URL.</p>
-                          `;
-                          parent.appendChild(placeholder);
-                        }
-                      }}
-                    />
-                  ) : null}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* Right: Visual Storytelling */}
-        <div className="relative group order-2 lg:order-2 h-full">
-          <div className="relative z-10 glass-panel p-2 rounded-[2rem] border-white/10 overflow-hidden transition-transform duration-500 h-full">
-             <div className="h-full bg-slate-900 rounded-[1.8rem] overflow-hidden relative">
+        {/* Right: Visual Storytelling (Matches height of Top Content) */}
+        <div className="relative group flex flex-col">
+          <div className="relative z-10 glass-panel p-2 rounded-[2rem] border-white/10 overflow-hidden transition-transform duration-500 flex-1 flex flex-col">
+             <div className="flex-1 bg-slate-900 rounded-[1.8rem] overflow-hidden relative">
                 <img 
                   src={settings?.aboutPageImage || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800"} 
                   alt="Abstract Creative Visual" 
@@ -258,6 +192,101 @@ const About: React.FC = () => {
           </div>
           {/* Decorative Frames */}
           <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-500/20 blur-3xl -z-10 animate-pulse"></div>
+        </div>
+
+        {/* Left: Bottom Content (Creative Philosophy) */}
+        <div className="flex flex-col justify-center space-y-6 p-8 glass-panel rounded-[2rem] border border-white/5 bg-white/5 backdrop-blur-sm relative overflow-hidden group/philosophy">
+          <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl group-hover/philosophy:bg-cyan-500/20 transition-colors duration-700"></div>
+          
+          <div className="relative z-10">
+            <h4 className="text-cyan-400 font-bold uppercase tracking-widest text-xs mb-4">Philosophy</h4>
+            <h3 className="text-2xl font-bold text-white mb-6 leading-tight">
+              "Design is not just what it looks like and feels like. Design is how it works."
+            </h3>
+            
+            <div className="space-y-4">
+              {[
+                { title: "User Centric", desc: "Putting the human at the heart of every pixel." },
+                { title: "Pixel Perfect", desc: "Precision in every detail, from grid to gradient." },
+                { title: "Minimalist", desc: "Removing the noise to let the message shine." }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start space-x-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-2 shadow-[0_0_8px_rgba(34,211,238,0.8)]"></div>
+                  <div>
+                    <div className="text-sm font-bold text-white uppercase tracking-wider">{item.title}</div>
+                    <div className="text-xs text-gray-400">{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Bottom Content (Video) */}
+        <div className="w-full lg:col-start-2 flex flex-col" ref={videoContainerRef}>
+          <div 
+            className="flex-1 glass-panel rounded-[2rem] border border-white/10 overflow-hidden relative group shadow-2xl min-h-[300px]"
+          >
+            {!showVideo ? (
+              <div 
+                onClick={() => settings?.aboutVideoLink && setShowVideo(true)}
+                className="absolute inset-0 w-full h-full cursor-pointer z-20"
+              >
+                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center group-hover:bg-black/40 transition-all duration-500 z-20">
+                  <div className="w-16 h-16 rounded-full border-2 border-cyan-400 flex items-center justify-center bg-cyan-400/10 group-hover:bg-cyan-400 group-hover:scale-110 transition-all duration-500 shadow-[0_0_20px_rgba(34,211,238,0.3)] mb-2">
+                    <i className={`fas ${settings?.aboutVideoLink ? 'fa-play' : 'fa-video-slash'} text-cyan-400 group-hover:text-black text-xl ml-1`}></i>
+                  </div>
+                  <div className="text-gray-400 text-[10px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    {settings?.aboutVideoLink ? 'Click to Play Video' : 'No Video Configured'}
+                  </div>
+                </div>
+
+                {/* Video Placeholder Content */}
+                {settings?.aboutVideoPlaceholder ? (
+                  <img 
+                    src={settings.aboutVideoPlaceholder} 
+                    alt="Video Placeholder" 
+                    className="absolute inset-0 w-full h-full object-cover object-center z-10"
+                  />
+                ) : (
+                  <div className="absolute inset-0 w-full h-full bg-[#0b0c10] z-10"></div>
+                )}
+              </div>
+            ) : (
+              <div className="absolute inset-0 w-full h-full z-30 bg-black">
+                {settings?.aboutVideoLink && (settings.aboutVideoLink.includes('youtube.com') || settings.aboutVideoLink.includes('youtu.be')) ? (
+                  <iframe 
+                    src={`https://www.youtube.com/embed/${settings.aboutVideoLink.includes('v=') ? settings.aboutVideoLink.split('v=')[1].split('&')[0] : settings.aboutVideoLink.split('/').pop()}?autoplay=1`}
+                    className="w-full h-full"
+                    frameBorder={0}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                ) : settings?.aboutVideoLink ? (
+                  <video 
+                    src={settings.aboutVideoLink} 
+                    className="w-full h-full object-cover"
+                    controls
+                    autoPlay
+                    onError={(e) => {
+                      const video = e.target as HTMLVideoElement;
+                      video.style.display = 'none';
+                      const parent = video.parentElement;
+                      if (parent) {
+                        const placeholder = document.createElement('div');
+                        placeholder.className = "w-full h-full flex flex-col items-center justify-center bg-black text-gray-500 text-xs text-center p-8 space-y-4";
+                        placeholder.innerHTML = `
+                          <i class="fas fa-exclamation-triangle text-2xl text-amber-500"></i>
+                          <p>This video source is not supported or the link is invalid.<br/>Please use a direct .mp4 link or a YouTube URL.</p>
+                        `;
+                        parent.appendChild(placeholder);
+                      }
+                    }}
+                  />
+                ) : null}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
