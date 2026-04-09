@@ -11,6 +11,17 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -73,7 +84,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
         
         {/* Mobile Toggle */}
         <button 
-          className="md:hidden text-white p-2"
+          className="md:hidden text-white p-2 z-[110]"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X size={28} /> : <Menu size={28} />}
@@ -84,28 +95,53 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#0b0c10]/95 backdrop-blur-xl border-t border-white/5 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] md:hidden bg-black flex flex-col"
           >
-            <div className="flex flex-col p-6 space-y-6">
-              {navItems.map(item => (
-                <button
+            {/* Header inside menu to ensure logo/close are always visible on black */}
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-cyan-500/20">F</div>
+                <span className="text-xl font-black tracking-tighter text-white">FAHAD</span>
+              </div>
+              <button onClick={() => setIsOpen(false)} className="text-white p-2">
+                <X size={32} />
+              </button>
+            </div>
+
+            {/* Menu Links */}
+            <div className="flex flex-col px-10 py-12 space-y-10 flex-1 overflow-y-auto items-start text-left">
+              {navItems.map((item, idx) => (
+                <motion.button
                   key={item.id}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05 }}
                   onClick={() => scrollTo(item.id)}
-                  className={`text-left text-lg font-black tracking-widest uppercase transition-colors ${activeSection === item.id ? 'text-cyan-400' : 'text-gray-400'}`}
+                  className={`text-5xl font-black tracking-tighter uppercase transition-all duration-300 relative ${activeSection === item.id ? 'text-cyan-400' : 'text-white/70 hover:text-white'}`}
                 >
                   {item.label}
-                </button>
+                  {activeSection === item.id && (
+                    <motion.span 
+                      layoutId="activeTabMobile"
+                      className="absolute -left-6 top-1/2 -translate-y-1/2 w-2 h-10 bg-cyan-400 rounded-full"
+                    />
+                  )}
+                </motion.button>
               ))}
-              <button 
-                className="flex items-center justify-center space-x-2 w-full py-4 bg-cyan-600/20 border border-cyan-400 rounded-xl text-cyan-400 font-bold"
+              
+              <motion.button 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="flex items-center justify-center space-x-3 w-full max-w-[260px] py-5 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-2xl text-white font-bold text-lg mt-10 shadow-2xl shadow-cyan-500/30 active:scale-95 transition-transform"
                 onClick={handleDownloadCV}
               >
-                <Download size={18} />
+                <Download size={24} />
                 <span>Download CV</span>
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         )}
