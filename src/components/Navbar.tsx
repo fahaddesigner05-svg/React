@@ -36,8 +36,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
   };
 
   const handleDownloadCV = () => {
-    // Replace with actual link to your CV file
-    alert("CV downloading feature initiated!");
+    window.open('https://drive.google.com/uc?id=1hVgkkh3MNUKamh7wDNt_i-kDQxY2cShQ&export=download', '_blank');
   };
 
   return (
