@@ -42,7 +42,16 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-panel py-4' : 'bg-transparent py-4 md:py-8'} hidden md:block`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center space-x-2 cursor-pointer group" onClick={() => scrollTo('home')}>
-            <div className="w-10 h-10 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center font-black text-xl group-hover:rotate-12 transition-transform shadow-lg shadow-cyan-500/30">F</div>
+            <div className="w-10 h-10 bg-gradient-to-tr from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform shadow-lg shadow-cyan-500/30 relative overflow-hidden">
+              <div className="relative w-5 h-6">
+                {/* Clean Geometric F Mark */}
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-white rounded-full"></div>
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-white rounded-full"></div>
+                <div className="absolute top-[45%] left-2.5 w-2.5 h-1.5 bg-white rounded-full"></div>
+              </div>
+              {/* Subtle background glow */}
+              <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-white/10 blur-xl rounded-full"></div>
+            </div>
             <span className="text-xl font-black tracking-tighter">FAHAD</span>
           </div>
 
