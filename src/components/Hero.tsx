@@ -14,7 +14,7 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center px-6 lg:px-24 overflow-hidden pt-32 pb-24 lg:pt-16 lg:pb-0 bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
+    <div className="relative min-h-screen flex items-center px-6 lg:px-24 overflow-hidden pt-20 pb-24 md:pt-32 lg:pt-16 lg:pb-0 bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center bg-fixed">
       {/* Dark Overlay for readability */}
       <div className="absolute inset-0 bg-slate-950/85 z-0"></div>
       
