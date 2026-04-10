@@ -83,7 +83,24 @@ const Dashboard: React.FC = () => {
   const [dbStatus, setDbStatus] = useState<{ connected: boolean; error?: string }>({ connected: true });
   const [adminData, setAdminData] = useState({ username: '', password: '' });
   const [isSavingAdmin, setIsSavingAdmin] = useState(false);
-  const [settings, setSettings] = useState({ aboutVideoLink: '', aboutVideoPlaceholder: '', aboutPageImage: '' });
+  const [settings, setSettings] = useState({ 
+    aboutVideoLink: '', 
+    aboutVideoPlaceholder: '', 
+    aboutPageImage: '',
+    siteName: '',
+    siteDescription: '',
+    contactEmail: '',
+    socialLinks: {
+      facebook: '',
+      instagram: '',
+      linkedin: '',
+      behance: '',
+      dribbble: ''
+    },
+    themeColor: '#22d3ee',
+    enableEmailNotifications: true,
+    maintenanceMode: false
+  });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -1231,14 +1248,15 @@ const Dashboard: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="max-w-2xl space-y-8"
+              className="max-w-4xl space-y-8 pb-20"
             >
+              {/* Account Settings */}
               <div className="glass-panel p-8 rounded-3xl border border-white/5">
                 <h2 className="text-xl font-bold mb-6 flex items-center space-x-2">
-                  <Settings className="w-5 h-5 text-cyan-400" />
+                  <Users className="w-5 h-5 text-cyan-400" />
                   <span>Account Settings</span>
                 </h2>
-                <form onSubmit={handleUpdateAdmin} className="space-y-4">
+                <form onSubmit={handleUpdateAdmin} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Admin Username</label>
                     <input 
@@ -1257,7 +1275,7 @@ const Dashboard: React.FC = () => {
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyan-400 outline-none transition-all" 
                     />
                   </div>
-                  <div className="pt-2">
+                  <div className="md:col-span-2">
                     <button 
                       type="submit"
                       disabled={isSavingAdmin}
@@ -1269,21 +1287,151 @@ const Dashboard: React.FC = () => {
                 </form>
               </div>
 
+              {/* General Site Settings */}
               <div className="glass-panel p-8 rounded-3xl border border-white/5">
                 <h2 className="text-xl font-bold mb-6 flex items-center space-x-2">
-                  <Database className="w-5 h-5 text-purple-400" />
-                  <span>Data Management</span>
+                  <Globe className="w-5 h-5 text-emerald-400" />
+                  <span>General Site Settings</span>
                 </h2>
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-400">Use these tools to reset or manage your portfolio data.</p>
+                <form onSubmit={handleUpdateSettings} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Site Name</label>
+                      <input 
+                        type="text" 
+                        value={settings.siteName} 
+                        onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyan-400 outline-none transition-all" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Contact Email</label>
+                      <input 
+                        type="email" 
+                        value={settings.contactEmail} 
+                        onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyan-400 outline-none transition-all" 
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Site Description</label>
+                    <textarea 
+                      value={settings.siteDescription} 
+                      onChange={(e) => setSettings({ ...settings, siteDescription: e.target.value })}
+                      rows={3}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyan-400 outline-none transition-all resize-none" 
+                    />
+                  </div>
                   <button 
-                    onClick={handleSeedData}
-                    disabled={isSeeding}
-                    className="flex items-center space-x-3 px-6 py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl font-bold hover:bg-emerald-500/20 transition-all disabled:opacity-50"
+                    type="submit"
+                    disabled={isSavingSettings}
+                    className="px-6 py-3 bg-emerald-500 text-black font-bold rounded-xl hover:bg-emerald-400 transition-all disabled:opacity-50"
                   >
-                    <Database className="w-4 h-4" />
-                    <span>{isSeeding ? 'Seeding...' : 'Seed Sample Projects'}</span>
+                    {isSavingSettings ? 'Saving...' : 'Save General Settings'}
                   </button>
+                </form>
+              </div>
+
+              {/* Social Links */}
+              <div className="glass-panel p-8 rounded-3xl border border-white/5">
+                <h2 className="text-xl font-bold mb-6 flex items-center space-x-2">
+                  <Layers className="w-5 h-5 text-purple-400" />
+                  <span>Social Links</span>
+                </h2>
+                <form onSubmit={handleUpdateSettings} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Object.keys(settings.socialLinks).map((platform) => (
+                    <div key={platform}>
+                      <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2 capitalize">{platform}</label>
+                      <input 
+                        type="url" 
+                        value={(settings.socialLinks as any)[platform]} 
+                        onChange={(e) => setSettings({ 
+                          ...settings, 
+                          socialLinks: { ...settings.socialLinks, [platform]: e.target.value } 
+                        })}
+                        placeholder={`https://${platform}.com/your-profile`}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-cyan-400 outline-none transition-all" 
+                      />
+                    </div>
+                  ))}
+                  <div className="md:col-span-2">
+                    <button 
+                      type="submit"
+                      disabled={isSavingSettings}
+                      className="px-6 py-3 bg-purple-500 text-white font-bold rounded-xl hover:bg-purple-400 transition-all disabled:opacity-50"
+                    >
+                      {isSavingSettings ? 'Saving...' : 'Save Social Links'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Preferences & Security */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="glass-panel p-8 rounded-3xl border border-white/5">
+                  <h2 className="text-xl font-bold mb-6 flex items-center space-x-2">
+                    <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                    <span>System Preferences</span>
+                  </h2>
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold">Maintenance Mode</p>
+                        <p className="text-xs text-gray-500">Hide site from public view</p>
+                      </div>
+                      <button 
+                        onClick={() => setSettings({ ...settings, maintenanceMode: !settings.maintenanceMode })}
+                        className={`w-12 h-6 rounded-full transition-all relative ${settings.maintenanceMode ? 'bg-yellow-500' : 'bg-white/10'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${settings.maintenanceMode ? 'left-7' : 'left-1'}`}></div>
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold">Email Notifications</p>
+                        <p className="text-xs text-gray-500">Receive alerts for new messages</p>
+                      </div>
+                      <button 
+                        onClick={() => setSettings({ ...settings, enableEmailNotifications: !settings.enableEmailNotifications })}
+                        className={`w-12 h-6 rounded-full transition-all relative ${settings.enableEmailNotifications ? 'bg-cyan-500' : 'bg-white/10'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${settings.enableEmailNotifications ? 'left-7' : 'left-1'}`}></div>
+                      </button>
+                    </div>
+                    <button 
+                      onClick={handleUpdateSettings}
+                      disabled={isSavingSettings}
+                      className="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-bold hover:bg-white/10 transition-all"
+                    >
+                      Save Preferences
+                    </button>
+                  </div>
+                </div>
+
+                <div className="glass-panel p-8 rounded-3xl border border-white/5">
+                  <h2 className="text-xl font-bold mb-6 flex items-center space-x-2">
+                    <Database className="w-5 h-5 text-emerald-400" />
+                    <span>Data Management</span>
+                  </h2>
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-400">Use these tools to reset or manage your portfolio data.</p>
+                    <button 
+                      onClick={handleSeedData}
+                      disabled={isSeeding}
+                      className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl font-bold hover:bg-emerald-500/20 transition-all disabled:opacity-50"
+                    >
+                      <Database className="w-4 h-4" />
+                      <span>{isSeeding ? 'Seeding...' : 'Seed Sample Projects'}</span>
+                    </button>
+                    <button 
+                      onClick={resetAnalytics}
+                      className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl font-bold hover:bg-red-500/20 transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Reset All Analytics</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
