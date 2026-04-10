@@ -128,7 +128,9 @@ app.post('/api/contact', async (req, res) => {
     try {
       const settingsData = await Settings.findOne({});
       if (settingsData?.enableEmailNotifications !== false) {
-        sendContactNotification({ name, email, message, service, budget });
+        // We await here because on Vercel/Serverless, the process might kill 
+        // background tasks before they finish.
+        await sendContactNotification({ name, email, message, service, budget });
       }
     } catch (err) {
       console.error('Email notification trigger failed:', err);

@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 // Email configuration
 const EMAIL_USER = process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
-const EMAIL_PASS = process.env.EMAIL_PASS || 'prdu ejxq owxb bidd';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'prduejxqowxbbidd';
 
 /**
  * Sends a notification email when a new message is received.
@@ -15,32 +15,25 @@ export const sendContactNotification = async (messageData: {
   service?: string;
   budget?: string;
 }) => {
-  console.log('Attempting to send email notification for:', messageData.name);
+  console.log('--- Email Notification Start ---');
+  console.log('Recipient:', 'fahaddesigner05@gmail.com');
+  console.log('Sender Account:', EMAIL_USER);
+  console.log('Has Password:', !!EMAIL_PASS);
 
   // Check if we have credentials
   if (!EMAIL_USER || !EMAIL_PASS) {
-    console.warn('Email notification skipped: Credentials not provided in environment variables.');
+    console.warn('Email notification skipped: Credentials not provided.');
     return;
   }
 
   try {
+    // Use service: 'gmail' for better compatibility
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true, // use SSL
+      service: 'gmail',
       auth: {
         user: EMAIL_USER,
-        pass: EMAIL_PASS,
+        pass: EMAIL_PASS.replace(/\s/g, ''), // Remove any spaces just in case
       },
-    });
-
-    // Verify connection configuration
-    transporter.verify(function (error, success) {
-      if (error) {
-        console.error('Transporter verification failed:', error);
-      } else {
-        console.log('Server is ready to take our messages');
-      }
     });
 
     const mailOptions = {
@@ -63,15 +56,15 @@ export const sendContactNotification = async (messageData: {
       `,
     };
 
-    console.log('Sending mail with options:', { to: mailOptions.to, subject: mailOptions.subject });
-
-    // Send email
+    console.log('Attempting to send mail...');
     const info = await transporter.sendMail(mailOptions);
     console.log('Email notification sent successfully:', info.response);
+    console.log('--- Email Notification End ---');
     return info;
 
   } catch (error) {
     // Catching any errors to prevent server crash
-    console.error('Email service error:', error);
+    console.error('Email service error details:', error);
+    console.log('--- Email Notification Failed ---');
   }
 };
