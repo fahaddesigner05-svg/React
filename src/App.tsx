@@ -115,21 +115,34 @@ const MainSite: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 3200);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <LoadingScreen />
       <MouseRing />
-      <Routes>
-        <Route path="/" element={<MainSite />} />
-        <Route path="/admin/login" element={<Login />} />
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/project/:id" element={<ProjectDetail />} />
-        <Route path="/projects" element={<AllProjects />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        {/* Redirect any other admin routes to login or dashboard */}
-        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
-      </Routes>
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={!isLoading ? { scale: 1, opacity: 1 } : { scale: 0.9, opacity: 0 }}
+        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+      >
+        <Routes>
+          <Route path="/" element={<MainSite />} />
+          <Route path="/admin/login" element={<Login />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/project/:id" element={<ProjectDetail />} />
+          <Route path="/projects" element={<AllProjects />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          {/* Redirect any other admin routes to login or dashboard */}
+          <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+        </Routes>
+      </motion.div>
     </>
   );
 };
