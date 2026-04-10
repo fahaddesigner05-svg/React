@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { Download, Home, User, Briefcase, Code, Mail } from 'lucide-react';
 
 interface NavbarProps {
@@ -41,26 +42,45 @@ const Navbar: React.FC<NavbarProps> = ({ activeSection }) => {
       {/* Top Navbar (Desktop Only) */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-panel py-4' : 'bg-transparent py-4 md:py-8'} hidden md:block`}>
         <div className="container mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center space-x-1 cursor-pointer group" onClick={() => scrollTo('home')}>
-            <div className="w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform relative translate-x-1">
-              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+          <motion.div 
+            className="flex items-center space-x-1 cursor-pointer group" 
+            onClick={() => scrollTo('home')}
+            initial="initial"
+            whileHover="hover"
+          >
+            <div className="w-12 h-12 flex items-center justify-center transition-all duration-500 relative translate-x-1">
+              <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_15px_rgba(34,211,238,0.4)] group-hover:drop-shadow-[0_0_25px_rgba(34,211,238,0.7)] transition-all duration-500">
                 <defs>
                   <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#22d3ee" />
                     <stop offset="100%" stopColor="#a855f7" />
                   </linearGradient>
                 </defs>
-                {/* Custom Stylized 'F' Logo - Precise match to provided image */}
+                {/* Custom Stylized 'F' Logo - Position Exchange Hover Effect */}
                 <g fill="url(#logo-grad)">
                   {/* Top Part */}
-                  <path d="M30 50 L15 50 L40 15 L95 15 L80 35 L50 35 Z" />
+                  <motion.path 
+                    d="M30 50 L15 50 L40 15 L95 15 L80 35 L50 35 Z" 
+                    variants={{
+                      initial: { d: "M30 50 L15 50 L40 15 L95 15 L80 35 L50 35 Z" },
+                      hover: { d: "M45 85 L30 85 L55 50 L85 50 L70 70 L60 70 Z" }
+                    }}
+                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  />
                   {/* Bottom Part */}
-                  <path d="M45 85 L30 85 L55 50 L85 50 L70 70 L60 70 Z" />
+                  <motion.path 
+                    d="M45 85 L30 85 L55 50 L85 50 L70 70 L60 70 Z" 
+                    variants={{
+                      initial: { d: "M45 85 L30 85 L55 50 L85 50 L70 70 L60 70 Z" },
+                      hover: { d: "M30 50 L15 50 L40 15 L95 15 L80 35 L50 35 Z" }
+                    }}
+                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  />
                 </g>
               </svg>
             </div>
             <span className="text-xl font-black tracking-tighter">FAHAD</span>
-          </div>
+          </motion.div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-10">
