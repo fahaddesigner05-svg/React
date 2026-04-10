@@ -15,6 +15,8 @@ export const sendContactNotification = async (messageData: {
   service?: string;
   budget?: string;
 }) => {
+  console.log('Attempting to send email notification for:', messageData.name);
+
   // Check if we have credentials
   if (!EMAIL_USER || !EMAIL_PASS) {
     console.warn('Email notification skipped: Credentials not provided in environment variables.');
@@ -23,11 +25,22 @@ export const sendContactNotification = async (messageData: {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // use SSL
       auth: {
         user: EMAIL_USER,
         pass: EMAIL_PASS,
       },
+    });
+
+    // Verify connection configuration
+    transporter.verify(function (error, success) {
+      if (error) {
+        console.error('Transporter verification failed:', error);
+      } else {
+        console.log('Server is ready to take our messages');
+      }
     });
 
     const mailOptions = {
@@ -50,17 +63,15 @@ export const sendContactNotification = async (messageData: {
       `,
     };
 
-    // Send email in background
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email notification:', error);
-      } else {
-        console.log('Email notification sent successfully:', info.response);
-      }
-    });
+    console.log('Sending mail with options:', { to: mailOptions.to, subject: mailOptions.subject });
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email notification sent successfully:', info.response);
+    return info;
 
   } catch (error) {
-    // Catching any initialization errors to prevent server crash
-    console.error('Failed to initialize email service:', error);
+    // Catching any errors to prevent server crash
+    console.error('Email service error:', error);
   }
 };
