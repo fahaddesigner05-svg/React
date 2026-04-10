@@ -11,7 +11,6 @@ import Admin from './src/models/Admin';
 import Analytics from './src/models/Analytics';
 import Settings from './src/models/Settings';
 import Feedback from './src/models/Feedback';
-import { sendContactNotification } from './src/services/emailService';
 
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
@@ -123,19 +122,6 @@ app.post('/api/contact', async (req, res) => {
     }
 
     const newMessage = await Message.create({ name, email, message, service, budget });
-    
-    // Send email notification (Safe Mode)
-    try {
-      const settingsData = await Settings.findOne({});
-      if (settingsData?.enableEmailNotifications !== false) {
-        // We await here because on Vercel/Serverless, the process might kill 
-        // background tasks before they finish.
-        await sendContactNotification({ name, email, message, service, budget });
-      }
-    } catch (err) {
-      console.error('Email notification trigger failed:', err);
-    }
-
     res.status(201).json({ success: true, data: newMessage });
   } catch (error: any) {
     console.error('API Error:', error);
