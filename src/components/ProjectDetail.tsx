@@ -246,45 +246,41 @@ const ProjectDetail: React.FC = () => {
           </h1>
 
           {/* Role & Timeline Grid */}
-          <div className="relative mb-16 p-8 rounded-2xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/10 backdrop-blur-md shadow-2xl group overflow-hidden">
-            {/* Animated Background Glow */}
-            <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 blur-[80px] group-hover:bg-cyan-500/20 transition-all duration-700"></div>
-            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/10 blur-[80px] group-hover:bg-purple-500/20 transition-all duration-700"></div>
+          <div className="relative mb-16 p-8 rounded-2xl bg-gradient-to-br from-white/[0.03] to-transparent border border-white/20 backdrop-blur-md shadow-2xl group overflow-hidden">
+            {/* Animated Background Glow - Now Permanent */}
+            <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/20 blur-[80px] transition-all duration-700"></div>
+            <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-500/20 blur-[80px] transition-all duration-700"></div>
             
-            {/* Corner Accents */}
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-cyan-400/30 rounded-tl-2xl transition-all duration-700 group-hover:w-full group-hover:h-full group-hover:border-cyan-400 group-hover:rounded-2xl"></div>
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-purple-400/30 rounded-br-2xl transition-all duration-700 group-hover:w-full group-hover:h-full group-hover:border-purple-400 group-hover:rounded-2xl"></div>
+            {/* Corner Accents - Now Permanent */}
+            <div className="absolute top-0 left-0 w-full h-full border-t-[3px] border-l-[3px] border-cyan-400 rounded-2xl transition-all duration-700"></div>
+            <div className="absolute bottom-0 right-0 w-full h-full border-b-[3px] border-r-[3px] border-purple-400 rounded-2xl transition-all duration-700"></div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 relative z-10">
               <div className="group/item cursor-default">
                 <div className="flex items-center gap-2 mb-4">
-                  <User className="w-3 h-3 text-gray-500 group-hover/item:text-cyan-400 transition-colors duration-300" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover/item:text-cyan-400 transition-colors duration-300">Role</h3>
+                  <User className="w-3 h-3 text-cyan-400 transition-colors duration-300" />
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 transition-colors duration-300">Role</h3>
                 </div>
                 <div className="relative inline-block">
-                  <p className="text-white font-black text-2xl tracking-tighter uppercase group-hover/item:text-cyan-400 transition-colors duration-300">
+                  <p className="text-cyan-400 font-black text-2xl tracking-tighter uppercase transition-colors duration-300">
                     {project.role || 'Lead Designer'}
                   </p>
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    whileHover={{ width: '100%' }}
-                    className="absolute -bottom-1 left-0 h-[2px] bg-cyan-400/30"
+                  <div 
+                    className="absolute -bottom-1 left-0 w-full h-[2px] bg-cyan-400/30"
                   />
                 </div>
               </div>
               <div className="group/item cursor-default">
                 <div className="flex items-center gap-2 mb-4">
-                  <Calendar className="w-3 h-3 text-gray-500 group-hover/item:text-purple-400 transition-colors duration-300" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover/item:text-purple-400 transition-colors duration-300">Timeline</h3>
+                  <Calendar className="w-3 h-3 text-purple-400 transition-colors duration-300" />
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 transition-colors duration-300">Timeline</h3>
                 </div>
                 <div className="relative inline-block">
-                  <p className="text-white font-black text-2xl tracking-tighter uppercase group-hover/item:text-purple-400 transition-colors duration-300">
+                  <p className="text-purple-400 font-black text-2xl tracking-tighter uppercase transition-colors duration-300">
                     {project.timeline || (project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'March 2026')}
                   </p>
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    whileHover={{ width: '100%' }}
-                    className="absolute -bottom-1 left-0 h-[2px] bg-purple-400/30"
+                  <div 
+                    className="absolute -bottom-1 left-0 w-full h-[2px] bg-purple-400/30"
                   />
                 </div>
               </div>

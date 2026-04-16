@@ -230,56 +230,58 @@ const Skills: React.FC = () => {
                 <p className="text-gray-400">I'll get back to you as soon as possible.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
                 {/* Left Column: Info */}
-                <div className="space-y-6">
-                  <div>
-                    <h4 className={`text-[10px] font-black uppercase tracking-[0.3em] ${selectedSkill.color} mb-3`}>{selectedSkill.name} Services</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedSkill.details.subSkills.map((s, i) => (
-                        <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-white">
-                          {s}
-                        </span>
-                      ))}
+                <div className="flex flex-col h-full space-y-6">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className={`text-[10px] font-black uppercase tracking-[0.3em] ${selectedSkill.color} mb-3`}>{selectedSkill.name} Services</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedSkill.details.subSkills.map((s, i) => (
+                          <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-white">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 mb-3">Tools</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedSkill.details.tools.map((t, i) => (
+                          <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-white">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 relative overflow-hidden group">
+                      <div className={`absolute top-0 left-0 w-1 h-full ${selectedSkill.color.replace('text-', 'bg-')}`}></div>
+                      <div className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-[50px] opacity-20 transition-opacity duration-500 group-hover:opacity-40 ${selectedSkill.color.replace('text-', 'bg-')}`}></div>
+                      
+                      <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <i className="fas fa-bolt text-yellow-400"></i>
+                        Why Choose Me?
+                      </h4>
+                      <ul className="space-y-3">
+                        <li className="flex items-start gap-3 text-sm text-gray-400">
+                          <i className={`fas fa-check-circle mt-1 ${selectedSkill.color}`}></i>
+                          <span>100% Client Satisfaction & Revisions</span>
+                        </li>
+                        <li className="flex items-start gap-3 text-sm text-gray-400">
+                          <i className={`fas fa-check-circle mt-1 ${selectedSkill.color}`}></i>
+                          <span>Modern, Clean & User-Centric Design</span>
+                        </li>
+                        <li className="flex items-start gap-3 text-sm text-gray-400">
+                          <i className={`fas fa-check-circle mt-1 ${selectedSkill.color}`}></i>
+                          <span>Fast Delivery & Clear Communication</span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
 
-                  <div>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 mb-3">Tools</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedSkill.details.tools.map((t, i) => (
-                        <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-white">
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 p-6 rounded-2xl bg-white/5 border border-white/10 relative overflow-hidden group">
-                    <div className={`absolute top-0 left-0 w-1 h-full ${selectedSkill.color.replace('text-', 'bg-')}`}></div>
-                    <div className={`absolute -right-10 -top-10 w-32 h-32 rounded-full blur-[50px] opacity-20 transition-opacity duration-500 group-hover:opacity-40 ${selectedSkill.color.replace('text-', 'bg-')}`}></div>
-                    
-                    <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                      <i className="fas fa-bolt text-yellow-400"></i>
-                      Why Choose Me?
-                    </h4>
-                    <ul className="space-y-3">
-                      <li className="flex items-start gap-3 text-sm text-gray-400">
-                        <i className={`fas fa-check-circle mt-1 ${selectedSkill.color}`}></i>
-                        <span>100% Client Satisfaction & Revisions</span>
-                      </li>
-                      <li className="flex items-start gap-3 text-sm text-gray-400">
-                        <i className={`fas fa-check-circle mt-1 ${selectedSkill.color}`}></i>
-                        <span>Modern, Clean & User-Centric Design</span>
-                      </li>
-                      <li className="flex items-start gap-3 text-sm text-gray-400">
-                        <i className={`fas fa-check-circle mt-1 ${selectedSkill.color}`}></i>
-                        <span>Fast Delivery & Clear Communication</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div className="grid grid-cols-2 gap-4 mt-auto pt-2">
                     <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center group hover:bg-white/10 transition-colors relative overflow-hidden">
                       <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${selectedSkill.color.replace('text-', 'bg-')}`}></div>
                       <h5 className={`text-3xl font-black ${selectedSkill.color}`}>50+</h5>
@@ -291,18 +293,10 @@ const Skills: React.FC = () => {
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1">Success Rate</p>
                     </div>
                   </div>
-
-                  <div className="mt-4 p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center gap-3 group hover:border-white/20 transition-colors cursor-default">
-                    <div className="relative flex h-3 w-3">
-                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${selectedSkill.color.replace('text-', 'bg-')}`}></span>
-                      <span className={`relative inline-flex rounded-full h-3 w-3 ${selectedSkill.color.replace('text-', 'bg-')}`}></span>
-                    </div>
-                    <span className="text-sm font-bold text-white group-hover:text-gray-200 transition-colors">Available for new projects</span>
-                  </div>
                 </div>
 
                 {/* Right Column: Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="flex flex-col h-full space-y-4">
                   <h4 className="text-lg font-bold text-white mb-4 border-b border-white/10 pb-2">Start a Project</h4>
                   
                   <div className="grid grid-cols-2 gap-4">
