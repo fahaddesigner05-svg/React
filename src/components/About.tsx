@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { SiFigma, SiCanva } from 'react-icons/si';
+import { DiPhotoshop, DiIllustrator } from 'react-icons/di';
 
 const About: React.FC = () => {
   const [settings, setSettings] = useState<any>(null);
@@ -180,13 +182,28 @@ const About: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c10]/40 via-transparent to-transparent"></div>
                 
-                {/* Floating Tech Stack Badges */}
-                <div className="absolute bottom-6 left-6 flex flex-wrap gap-2">
-                   {['React', 'Figma', 'Node', 'UI/UX'].map(tag => (
-                     <span key={tag} className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest text-white/80 border border-white/10">
-                       {tag}
-                     </span>
-                   ))}
+                {/* Corner Icons on Hover */}
+                <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-y-2 group-hover:translate-y-0 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                  {/* @ts-ignore */}
+                  <SiFigma className="text-[#F24E1E] text-sm" />
+                  <span className="text-[10px] font-bold tracking-widest text-white uppercase">Figma</span>
+                </div>
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-y-2 group-hover:translate-y-0 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                  <span className="text-[10px] font-bold tracking-widest text-white uppercase">Photoshop</span>
+                  {/* @ts-ignore */}
+                  <DiPhotoshop className="text-[#31A8FF] text-lg" />
+                </div>
+
+                <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                  {/* @ts-ignore */}
+                  <SiCanva className="text-[#00C4CC] text-sm" />
+                  <span className="text-[10px] font-bold tracking-widest text-white uppercase">Canva</span>
+                </div>
+
+                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0 z-20 flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                  <span className="text-[10px] font-bold tracking-widest text-white uppercase">Illustrator</span>
+                  {/* @ts-ignore */}
+                  <DiIllustrator className="text-[#FF9A00] text-lg" />
                 </div>
              </div>
           </div>

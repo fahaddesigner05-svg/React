@@ -262,7 +262,7 @@ const ProjectDetail: React.FC = () => {
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 transition-colors duration-300">Role</h3>
                 </div>
                 <div className="relative inline-block">
-                  <p className="text-cyan-400 font-black text-2xl tracking-tighter uppercase transition-colors duration-300">
+                  <p className="text-cyan-400 font-black text-xl tracking-tighter uppercase transition-colors duration-300">
                     {project.role || 'Lead Designer'}
                   </p>
                   <div 
@@ -276,7 +276,7 @@ const ProjectDetail: React.FC = () => {
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 transition-colors duration-300">Timeline</h3>
                 </div>
                 <div className="relative inline-block">
-                  <p className="text-purple-400 font-black text-2xl tracking-tighter uppercase transition-colors duration-300">
+                  <p className="text-purple-400 font-black text-xl tracking-tighter uppercase transition-colors duration-300">
                     {project.timeline || (project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'March 2026')}
                   </p>
                   <div 
