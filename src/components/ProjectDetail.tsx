@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, X, Globe, Code, Layers, Layout, User, Calendar, Star, Send, MessageSquare } from 'lucide-react';
+import { ArrowLeft, X, Globe, Code, Layers, Layout, User, Calendar, Star, Send, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SiFigma, SiCanva, SiSketch, SiInvision, SiFramer, SiReact, SiWordpress, SiElementor, SiWebflow, SiWix, SiShopify } from 'react-icons/si';
 import { DiPhotoshop, DiIllustrator } from 'react-icons/di';
 
@@ -157,6 +157,46 @@ const ProjectDetail: React.FC = () => {
 
     fetchProject();
   }, [id]);
+
+  const mainImage = project ? (project.coverImg || project.img) : null;
+  const galleryImages = project?.images?.filter(img => img && img.trim() !== '' && img !== mainImage) || [];
+  const allImages = mainImage ? [mainImage, ...galleryImages] : galleryImages;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedImage) return;
+      if (e.key === 'ArrowRight') {
+        const currentIndex = allImages.indexOf(selectedImage);
+        const nextIndex = (currentIndex + 1) % allImages.length;
+        setSelectedImage(allImages[nextIndex]);
+      } else if (e.key === 'ArrowLeft') {
+        const currentIndex = allImages.indexOf(selectedImage);
+        const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+        setSelectedImage(allImages[prevIndex]);
+      } else if (e.key === 'Escape') {
+        setSelectedImage(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, allImages]);
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!selectedImage || allImages.length <= 1) return;
+    const currentIndex = allImages.indexOf(selectedImage);
+    const nextIndex = (currentIndex + 1) % allImages.length;
+    setSelectedImage(allImages[nextIndex]);
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!selectedImage || allImages.length <= 1) return;
+    const currentIndex = allImages.indexOf(selectedImage);
+    const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+    setSelectedImage(allImages[prevIndex]);
+  };
 
   const getYouTubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -608,6 +648,24 @@ const ProjectDetail: React.FC = () => {
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl border border-white/10"
                 referrerPolicy="no-referrer"
               />
+
+              {/* Navigation Buttons */}
+              {allImages.length > 1 && (
+                <>
+                  <button 
+                    onClick={handlePrevImage}
+                    className="absolute top-1/2 -left-4 lg:-left-20 -translate-y-1/2 w-10 h-10 lg:w-14 lg:h-14 bg-white/10 hover:bg-cyan-500 hover:text-white backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white transition-all duration-300 z-[310] group"
+                  >
+                    <ChevronLeft className="w-6 h-6 lg:w-8 lg:h-8 group-hover:-translate-x-1 transition-transform" />
+                  </button>
+                  <button 
+                    onClick={handleNextImage}
+                    className="absolute top-1/2 -right-4 lg:-right-20 -translate-y-1/2 w-10 h-10 lg:w-14 lg:h-14 bg-white/10 hover:bg-cyan-500 hover:text-white backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white transition-all duration-300 z-[310] group"
+                  >
+                    <ChevronRight className="w-6 h-6 lg:w-8 lg:h-8 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </>
+              )}
               
               {/* Modal Close Button */}
               <button 
