@@ -8,6 +8,7 @@ const projectSchema = new mongoose.Schema({
   images: [String],
   coverImg: String,
   videoLink: String,
+  videoLinks: [String],
   color: String,
   role: String,
   timeline: String,

@@ -132,7 +132,8 @@ const AllProjects: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProjects.map((project, idx) => {
-              const ytId = project.videoLink ? getYouTubeId(project.videoLink) : null;
+              const mainVideo = project.videoLinks?.[0] || project.videoLink;
+              const ytId = mainVideo ? getYouTubeId(mainVideo) : null;
               
               return (
                 <motion.div
@@ -148,9 +149,9 @@ const AllProjects: React.FC = () => {
                       <div className="w-full h-full bg-black flex items-center justify-center">
                         <i className="fab fa-youtube text-4xl text-red-600"></i>
                       </div>
-                    ) : project.videoLink ? (
+                    ) : mainVideo ? (
                       <video 
-                        src={project.videoLink || undefined} 
+                        src={mainVideo || undefined} 
                         className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
                         muted
                         playsInline

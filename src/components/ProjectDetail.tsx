@@ -15,6 +15,7 @@ interface ProjectData {
   color: string;
   description: string;
   videoLink?: string;
+  videoLinks?: string[];
   createdAt: string;
   role?: string;
   timeline?: string;
@@ -353,57 +354,83 @@ const ProjectDetail: React.FC = () => {
           transition={{ duration: 1, delay: 0.2 }}
           className="flex flex-col min-h-full"
         >
-          {/* Main Media */}
-          <div className="w-full flex items-center justify-center overflow-hidden">
-            {(() => {
-              const ytId = project.videoLink ? getYouTubeId(project.videoLink) : null;
-              if (ytId) {
-                return (
-                  <div className="aspect-video w-full max-w-full">
-                    <iframe 
-                      src={`https://www.youtube.com/embed/${ytId}`}
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                );
-              } else if (project.videoLink) {
-                return (
-                  <video 
-                    src={project.videoLink || undefined} 
-                    className="w-full h-auto"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    controls
-                    onError={(e) => {
-                      const video = e.target as HTMLVideoElement;
-                      video.style.display = 'none';
-                      const parent = video.parentElement;
-                      if (parent) {
-                        const img = document.createElement('img');
-                        img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
-                        img.className = "w-full h-auto";
-                        img.referrerPolicy = "no-referrer";
-                        parent.appendChild(img);
-                      }
-                    }}
-                  />
-                );
-              } else if (project.coverImg || project.img) {
-                return (
-                  <img 
-                    src={project.coverImg || project.img || undefined} 
-                    alt={project.title}
-                    className="w-full h-auto"
-                    referrerPolicy="no-referrer"
-                  />
-                );
-              }
-              return null;
-            })()}
+          {/* Main Media Section */}
+          <div className="w-full flex flex-col items-center">
+            {/* Handle Legacy Single Video Link */}
+            {project.videoLink && (
+              <div className="w-full mb-0 overflow-hidden">
+                {(() => {
+                  const ytId = getYouTubeId(project.videoLink);
+                  if (ytId) {
+                    return (
+                      <div className="aspect-video w-full">
+                        <iframe 
+                          src={`https://www.youtube.com/embed/${ytId}`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    );
+                  }
+                  return (
+                    <video 
+                      src={project.videoLink} 
+                      className="w-full h-auto"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      controls
+                    />
+                  );
+                })()}
+              </div>
+            )}
+
+            {/* Handle Multiple Video Links */}
+            {project.videoLinks && project.videoLinks.filter(v => v && v.trim() !== '').map((vLink, vIdx) => (
+              <div key={`v-${vIdx}`} className="w-full mb-0 overflow-hidden">
+                {(() => {
+                  const ytId = getYouTubeId(vLink);
+                  if (ytId) {
+                    return (
+                      <div className="aspect-video w-full">
+                        <iframe 
+                          src={`https://www.youtube.com/embed/${ytId}`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    );
+                  }
+                  return (
+                    <video 
+                      src={vLink} 
+                      className="w-full h-auto"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      controls
+                    />
+                  );
+                })()}
+              </div>
+            ))}
+
+            {/* Main Cover Image (Only if no videos or specifically set) */}
+            {(!project.videoLink && (!project.videoLinks || project.videoLinks.length === 0)) && (project.coverImg || project.img) && (
+              <div className="w-full">
+                <img 
+                  src={project.coverImg || project.img || undefined} 
+                  alt={project.title}
+                  className="w-full h-auto"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            )}
           </div>
 
           {/* Gallery Images */}

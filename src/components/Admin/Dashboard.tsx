@@ -124,6 +124,7 @@ const Dashboard: React.FC = () => {
     images: [] as string[],
     coverImg: '',
     videoLink: '',
+    videoLinks: [] as string[],
     color: 'cyan',
     role: 'Lead Designer',
     timeline: 'March 2026',
@@ -525,6 +526,7 @@ const Dashboard: React.FC = () => {
         images: project.images || [],
         coverImg: project.coverImg || project.img,
         videoLink: project.videoLink || '',
+        videoLinks: project.videoLinks || [],
         color: project.color || 'cyan',
         role: project.role || 'Lead Designer',
         timeline: project.timeline || 'March 2026',
@@ -542,6 +544,7 @@ const Dashboard: React.FC = () => {
         images: [],
         coverImg: '',
         videoLink: '',
+        videoLinks: [],
         color: 'cyan',
         role: 'Lead Designer',
         timeline: 'March 2026',
@@ -560,13 +563,15 @@ const Dashboard: React.FC = () => {
       
       // Ensure img has a fallback if videoLink is provided but no images
       const dataToSave = { ...formData };
-      const ytId = dataToSave.videoLink ? getYouTubeId(dataToSave.videoLink) : null;
+      
+      const firstVideo = dataToSave.videoLinks.find(v => v && v.trim() !== '') || dataToSave.videoLink;
+      const ytId = firstVideo ? getYouTubeId(firstVideo) : null;
       
       if (ytId && !dataToSave.img && dataToSave.images.length === 0) {
         const thumb = `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`;
         dataToSave.img = thumb;
         dataToSave.coverImg = thumb;
-      } else if (dataToSave.videoLink && !dataToSave.img && dataToSave.images.length === 0) {
+      } else if (firstVideo && !dataToSave.img && dataToSave.images.length === 0) {
         dataToSave.img = ''; // Allow empty string for img if video is present
       }
 
@@ -1670,6 +1675,55 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
 
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-500">Project Videos (Optional)</label>
+                  <div className="flex items-center justify-end">
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({...formData, videoLinks: [...formData.videoLinks, '']})}
+                      className="text-xs font-bold text-gray-400 hover:underline flex items-center space-x-1"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>Add Video URL</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {formData.videoLinks.map((url, idx) => (
+                    <div key={idx} className="flex items-center space-x-2">
+                      <div className="flex-1">
+                        <input 
+                          type="text" 
+                          placeholder={`Video URL ${idx + 1}`}
+                          value={url}
+                          onChange={(e) => {
+                            const newVideos = [...formData.videoLinks];
+                            newVideos[idx] = e.target.value;
+                            setFormData({...formData, videoLinks: newVideos});
+                          }}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all text-sm"
+                        />
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newVideos = formData.videoLinks.filter((_, i) => i !== idx);
+                          setFormData({...formData, videoLinks: newVideos});
+                        }}
+                        className="h-[46px] w-[46px] flex items-center justify-center rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all border border-red-500/20 shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {formData.videoLinks.length === 0 && !formData.videoLink && formData.images.length === 0 && (
+                    <p className="text-xs text-gray-500 italic">No images or video added yet. Click "Add URL" or "Add Video URL" to start.</p>
+                  )}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="hidden">
                   <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Main Image URL (Legacy)</label>
@@ -1680,17 +1734,15 @@ const Dashboard: React.FC = () => {
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all"
                   />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Video (Optional)</label>
-                  <div>
-                    <input 
-                      type="text" 
-                      placeholder="Paste video URL here..."
-                      value={formData.videoLink}
-                      onChange={(e) => setFormData({...formData, videoLink: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-cyan-400 outline-none transition-all"
-                    />
-                  </div>
+                <div className="hidden">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Video (Legacy)</label>
+                  <input 
+                    type="text" 
+                    placeholder="Paste video URL here..."
+                    value={formData.videoLink}
+                    onChange={(e) => setFormData({...formData, videoLink: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-cyan-400 outline-none transition-all"
+                  />
                 </div>
               </div>
               <div className="flex justify-end space-x-4 pt-4">

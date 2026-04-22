@@ -112,27 +112,27 @@ const Projects: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {projects.length > 0 ? (
           projects.map((project, idx) => {
-            const ytId = project.videoLink ? getYouTubeId(project.videoLink) : null;
+            const mainVideo = project.videoLinks?.[0] || project.videoLink;
+            const ytId = mainVideo ? getYouTubeId(mainVideo) : null;
             
             return (
               <div 
                 key={project._id} 
-                onClick={() => handleProjectClick(project.videoLink)}
+                onClick={() => handleProjectClick(mainVideo)}
                 className="group relative overflow-hidden rounded-3xl cursor-pointer"
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-10 opacity-60 group-hover:opacity-80 transition-opacity"></div>
                 
                 {ytId ? (
                   <iframe 
-                    src={`https://www.youtube.com/embed/${ytId}`}
-                    className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
+                    src={`https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0`}
+                    className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none"
                     frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                   ></iframe>
-                ) : project.videoLink ? (
+                ) : mainVideo ? (
                   <video 
-                    src={project.videoLink || undefined} 
+                    src={mainVideo || undefined} 
                     className="w-full h-[400px] object-cover transition-transform duration-700 group-hover:scale-110"
                     autoPlay
                     muted
