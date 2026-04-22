@@ -425,7 +425,7 @@ const ProjectDetail: React.FC = () => {
             {/* Main Cover Image (Only if no videos or specifically set) */}
             {(!project.videoLink && (!project.videoLinks || project.videoLinks.length === 0)) && (project.coverImg || project.img) && (
               <div 
-                className="w-full cursor-zoom-in"
+                className="w-full cursor-default"
                 onClick={() => setSelectedImage(project.coverImg || project.img)}
               >
                 <img 
@@ -444,7 +444,7 @@ const ProjectDetail: React.FC = () => {
             .map((img, idx) => (
             <div
               key={idx}
-              className="w-full overflow-hidden group cursor-zoom-in"
+              className="w-full overflow-hidden group cursor-default"
               onClick={() => setSelectedImage(img)}
             >
               <img 
@@ -591,7 +591,7 @@ const ProjectDetail: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[300] flex items-center justify-center p-4 lg:p-12 bg-black/95 backdrop-blur-md cursor-zoom-out"
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4 lg:p-12 bg-black/95 backdrop-blur-md cursor-default"
             onClick={() => setSelectedImage(null)}
           >
             <motion.div
