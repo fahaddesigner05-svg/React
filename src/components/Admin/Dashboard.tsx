@@ -1624,7 +1624,7 @@ const Dashboard: React.FC = () => {
                 <div className="space-y-3">
                   {formData.images.map((url, idx) => (
                     <div key={idx} className="flex items-center space-x-2">
-                      <div className="flex-1 relative">
+                      <div className="flex-1">
                         <input 
                           type="text" 
                           required
@@ -1637,23 +1637,28 @@ const Dashboard: React.FC = () => {
                           }}
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all text-sm"
                         />
-                        {url && (
-                          <button
-                            type="button"
-                            onClick={() => setFormData({...formData, coverImg: url, img: url})}
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold uppercase px-2 py-1 rounded-md transition-all ${formData.coverImg === url ? 'bg-cyan-500 text-black' : 'bg-white/10 text-gray-400 hover:bg-white/20'}`}
-                          >
-                            {formData.coverImg === url ? 'Cover' : 'Set Cover'}
-                          </button>
-                        )}
                       </div>
+                      {url && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({...formData, coverImg: url, img: url})}
+                          className={`h-[46px] px-4 rounded-xl text-[10px] font-bold uppercase transition-all border whitespace-nowrap flex items-center justify-center space-x-2 ${
+                            formData.coverImg === url 
+                              ? 'bg-cyan-400 text-black border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.2)]' 
+                              : 'bg-white/5 text-gray-400 border-white/10 hover:border-cyan-400/50 hover:text-cyan-400'
+                          }`}
+                        >
+                          <Star className={`w-3.5 h-3.5 ${formData.coverImg === url ? 'fill-current' : ''}`} />
+                          <span>{formData.coverImg === url ? 'Cover' : 'Set Cover'}</span>
+                        </button>
+                      )}
                       <button 
                         type="button"
                         onClick={() => {
                           const newImages = formData.images.filter((_, i) => i !== idx);
                           setFormData({...formData, images: newImages});
                         }}
-                        className="p-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all border border-red-500/20"
+                        className="h-[46px] w-[46px] flex items-center justify-center rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all border border-red-500/20 shrink-0"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
