@@ -224,7 +224,7 @@ const ProjectDetail: React.FC = () => {
       </button>
 
       {/* Left Column: Project Info */}
-      <div className="w-full lg:w-[45%] h-auto lg:h-full overflow-y-visible lg:overflow-y-auto overflow-x-hidden p-8 lg:p-16 border-b lg:border-b-0 lg:border-r border-white/5 scrollbar-hide relative bg-transparent z-10">
+      <div className="w-full lg:w-[45%] h-auto lg:h-full overflow-y-visible lg:overflow-y-auto p-8 lg:p-16 border-b lg:border-b-0 lg:border-r border-white/5 scrollbar-hide relative bg-transparent z-10">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -293,7 +293,7 @@ const ProjectDetail: React.FC = () => {
           <div className="mb-16">
             <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-cyan-400 mb-6">Project Overview</h3>
             <div 
-              className="text-white leading-relaxed text-lg font-medium tracking-tight description-content break-words"
+              className="text-white leading-relaxed text-lg font-medium tracking-tight description-content-v2"
               dangerouslySetInnerHTML={{ __html: project.description }}
             />
           </div>
