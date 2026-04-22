@@ -242,7 +242,7 @@ const ProjectDetail: React.FC = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-5xl lg:text-7xl font-black mb-12 leading-[0.9] tracking-tighter uppercase text-white">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-8 leading-[1.1] tracking-tighter uppercase text-white">
             {project.title}
           </h1>
 
