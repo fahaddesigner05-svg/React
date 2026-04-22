@@ -28,7 +28,8 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: normal;
-  text-align: left;
+  text-align: justify;
+  text-justify: inter-word;
 }
 .description-content-v2 p {
   margin-bottom: 1rem;
