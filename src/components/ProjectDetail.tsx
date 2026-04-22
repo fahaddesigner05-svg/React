@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, X, Globe, Code, Layers, Layout, User, Calendar, Star, Send, MessageSquare } from 'lucide-react';
 import { SiFigma, SiCanva, SiSketch, SiInvision, SiFramer, SiReact, SiWordpress, SiElementor, SiWebflow, SiWix, SiShopify } from 'react-icons/si';
 import { DiPhotoshop, DiIllustrator } from 'react-icons/di';
@@ -37,6 +37,7 @@ const ProjectDetail: React.FC = () => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -291,9 +292,10 @@ const ProjectDetail: React.FC = () => {
           {/* Project Overview */}
           <div className="mb-16">
             <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-cyan-400 mb-6">Project Overview</h3>
-            <p className="text-white leading-relaxed text-lg font-medium tracking-tight whitespace-pre-wrap">
-              {project.description}
-            </p>
+            <div 
+              className="text-white leading-relaxed text-lg font-medium tracking-tight whitespace-pre-wrap description-content"
+              dangerouslySetInnerHTML={{ __html: project.description }}
+            />
           </div>
 
           {/* Project Goals */}
@@ -422,11 +424,14 @@ const ProjectDetail: React.FC = () => {
 
             {/* Main Cover Image (Only if no videos or specifically set) */}
             {(!project.videoLink && (!project.videoLinks || project.videoLinks.length === 0)) && (project.coverImg || project.img) && (
-              <div className="w-full">
+              <div 
+                className="w-full cursor-zoom-in"
+                onClick={() => setSelectedImage(project.coverImg || project.img)}
+              >
                 <img 
                   src={project.coverImg || project.img || undefined} 
                   alt={project.title}
-                  className="w-full h-auto"
+                  className="w-full h-auto transition-transform duration-700 hover:scale-[1.02]"
                   referrerPolicy="no-referrer"
                 />
               </div>
@@ -439,7 +444,8 @@ const ProjectDetail: React.FC = () => {
             .map((img, idx) => (
             <div
               key={idx}
-              className="w-full overflow-hidden group"
+              className="w-full overflow-hidden group cursor-zoom-in"
+              onClick={() => setSelectedImage(img)}
             >
               <img 
                 src={img} 
@@ -578,6 +584,42 @@ const ProjectDetail: React.FC = () => {
           </motion.div>
         </div>
       )}
+      {/* Image Popup Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4 lg:p-12 bg-black/95 backdrop-blur-md cursor-zoom-out"
+            onClick={() => setSelectedImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative max-w-full max-h-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={selectedImage} 
+                alt="Project view" 
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl border border-white/10"
+                referrerPolicy="no-referrer"
+              />
+              
+              {/* Modal Close Button */}
+              <button 
+                onClick={() => setSelectedImage(null)}
+                className="absolute -top-4 -right-4 lg:-top-8 lg:-right-8 w-10 h-10 lg:w-12 lg:h-12 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white transition-all duration-300 z-[310]"
+              >
+                <X className="w-5 h-5 lg:w-6 lg:h-6" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

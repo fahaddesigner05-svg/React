@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { SiFigma, SiCanva, SiSketch, SiInvision, SiFramer, SiReact, SiWordpress, SiElementor, SiWebflow, SiWix, SiShopify } from 'react-icons/si';
 import { DiPhotoshop, DiIllustrator } from 'react-icons/di';
 import { 
@@ -1483,13 +1485,23 @@ const Dashboard: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Description</label>
-                <textarea 
-                  required
-                  rows={3}
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all resize-none"
-                ></textarea>
+                <div className="quill-container">
+                  <ReactQuill 
+                    theme="snow"
+                    value={formData.description}
+                    onChange={(content) => setFormData({...formData, description: content})}
+                    modules={{
+                      toolbar: [
+                        [{ 'header': [1, 2, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        ['link'],
+                        ['clean']
+                      ],
+                    }}
+                    className="bg-white/5 border border-white/10 rounded-xl text-white overflow-hidden"
+                  />
+                </div>
               </div>
               
               <div className="flex items-center space-x-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3">
