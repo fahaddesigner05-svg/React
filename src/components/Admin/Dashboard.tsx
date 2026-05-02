@@ -125,6 +125,9 @@ const Dashboard: React.FC = () => {
     coverImg: '',
     videoLink: '',
     videoLinks: [] as string[],
+    figmaLink: '',
+    externalLink: '',
+    externalLinkText: '',
     color: 'cyan',
     role: 'Lead Designer',
     timeline: 'March 2026',
@@ -527,6 +530,9 @@ const Dashboard: React.FC = () => {
         coverImg: project.coverImg || project.img,
         videoLink: project.videoLink || '',
         videoLinks: project.videoLinks || [],
+        figmaLink: project.figmaLink || '',
+        externalLink: project.externalLink || '',
+        externalLinkText: project.externalLinkText || '',
         color: project.color || 'cyan',
         role: project.role || 'Lead Designer',
         timeline: project.timeline || 'March 2026',
@@ -545,6 +551,9 @@ const Dashboard: React.FC = () => {
         coverImg: '',
         videoLink: '',
         videoLinks: [],
+        figmaLink: '',
+        externalLink: '',
+        externalLinkText: '',
         color: 'cyan',
         role: 'Lead Designer',
         timeline: 'March 2026',
@@ -1721,6 +1730,44 @@ const Dashboard: React.FC = () => {
                   {formData.videoLinks.length === 0 && !formData.videoLink && formData.images.length === 0 && (
                     <p className="text-xs text-gray-500 italic">No images or video added yet. Click "Add URL" or "Add Video URL" to start.</p>
                   )}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="block text-xs font-bold uppercase tracking-widest text-gray-500">Figma Prototype Link (Optional)</label>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1">
+                    <input 
+                      type="text" 
+                      placeholder="Paste Figma Prototype Link here..."
+                      value={formData.figmaLink}
+                      onChange={(e) => setFormData({...formData, figmaLink: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-500">Website Link Text (Optional)</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., Visit Live Website"
+                    value={formData.externalLinkText}
+                    onChange={(e) => setFormData({...formData, externalLinkText: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all text-sm"
+                  />
+                </div>
+                <div className="space-y-4">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-gray-500">Website URL (Optional)</label>
+                  <input 
+                    type="text" 
+                    placeholder="https://example.com"
+                    value={formData.externalLink}
+                    onChange={(e) => setFormData({...formData, externalLink: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all text-sm"
+                  />
                 </div>
               </div>
 

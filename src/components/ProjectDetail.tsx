@@ -16,6 +16,9 @@ interface ProjectData {
   description: string;
   videoLink?: string;
   videoLinks?: string[];
+  figmaLink?: string;
+  externalLink?: string;
+  externalLinkText?: string;
   createdAt: string;
   role?: string;
   timeline?: string;
@@ -198,6 +201,12 @@ const ProjectDetail: React.FC = () => {
     setSelectedImage(allImages[prevIndex]);
   };
 
+  const getFigmaEmbedUrl = (url: string) => {
+    if (!url) return null;
+    if (url.includes('figma.com/embed')) return url;
+    return `https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(url)}`;
+  };
+
   const getYouTubeId = (url: string) => {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
@@ -336,6 +345,24 @@ const ProjectDetail: React.FC = () => {
               className="text-white leading-relaxed text-lg font-medium tracking-tight description-content-v2"
               dangerouslySetInnerHTML={{ __html: project.description }}
             />
+
+            {project.externalLink && (
+              <div className="mt-8 flex items-center">
+                <a 
+                  href={project.externalLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group flex items-center space-x-3 text-cyan-400 hover:text-white transition-all duration-300 transform hover:translate-x-2"
+                >
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 group-hover:bg-cyan-500 group-hover:border-cyan-500 transition-all">
+                    <Globe className="w-5 h-5 group-hover:text-black transition-colors" />
+                  </div>
+                  <span className="font-black uppercase tracking-[0.2em] text-sm underline decoration-cyan-500/30 decoration-2 underline-offset-8 group-hover:decoration-white transition-all">
+                    {project.externalLinkText || 'Visit Website'}
+                  </span>
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Project Goals */}
@@ -398,6 +425,19 @@ const ProjectDetail: React.FC = () => {
         >
           {/* Main Media Section */}
           <div className="w-full flex flex-col items-center">
+            {/* Handle Figma Prototype Embed */}
+            {project.figmaLink && (
+              <div className="w-full mb-0 overflow-hidden bg-[#1e1e1e]">
+                <div className="aspect-[16/9] md:aspect-[16/10] w-full">
+                  <iframe 
+                    src={getFigmaEmbedUrl(project.figmaLink) || ''}
+                    className="w-full h-full"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
             {/* Handle Legacy Single Video Link */}
             {project.videoLink && (
               <div className="w-full mb-0 overflow-hidden">
