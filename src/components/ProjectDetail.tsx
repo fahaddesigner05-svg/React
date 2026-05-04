@@ -710,7 +710,7 @@ const ProjectDetail: React.FC = () => {
               {/* Modal Close Button */}
               <button 
                 onClick={() => setSelectedImage(null)}
-                className="absolute -top-4 -right-4 lg:-top-8 lg:-right-8 w-10 h-10 lg:w-12 lg:h-12 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white transition-all duration-300 z-[310]"
+                className="absolute -bottom-4 -right-4 lg:-bottom-8 lg:-right-8 w-10 h-10 lg:w-12 lg:h-12 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white transition-all duration-300 z-[310]"
               >
                 <X className="w-5 h-5 lg:w-6 lg:h-6" />
               </button>
