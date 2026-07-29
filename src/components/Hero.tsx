@@ -1,10 +1,64 @@
-import React from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
+
+interface ProjectData {
+  _id: string;
+  title: string;
+  category: string;
+  img: string;
+  coverImg?: string;
+  color?: string;
+}
+
+const DEFAULT_PROJECTS: ProjectData[] = [
+  { _id: '1', title: 'Brand Identity', category: 'Branding', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop' },
+  { _id: '2', title: 'UI/UX App Design', category: 'UI/UX', img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop' },
+  { _id: '3', title: '3D Product Design', category: '3D Design', img: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=400&auto=format&fit=crop' },
+  { _id: '4', title: 'Dashboard System', category: 'Web App', img: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=400&auto=format&fit=crop' },
+  { _id: '5', title: 'Social Media Kit', category: 'Graphics', img: 'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?q=80&w=400&auto=format&fit=crop' },
+  { _id: '6', title: 'Packaging Design', category: 'Print', img: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?q=80&w=400&auto=format&fit=crop' },
+];
 
 const Hero: React.FC = () => {
+  const navigate = useNavigate();
   const { scrollYProgress } = useScroll();
   const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
   const scrollIndicatorY = useTransform(scrollYProgress, [0, 0.05], [0, 20]);
+
+  const [projects, setProjects] = useState<ProjectData[]>(DEFAULT_PROJECTS);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('/api/projects');
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+            setProjects(result.data);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch projects in Hero:', err);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  useEffect(() => {
+    if (projects.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % projects.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [projects.length]);
+
+  const itemsToShow = 3;
+  const visibleProjects = Array.from({ length: itemsToShow }).map((_, i) => {
+    const idx = (currentIndex + i) % projects.length;
+    return projects[idx];
+  });
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -81,28 +135,101 @@ const Hero: React.FC = () => {
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 h-full">
-                        <div className="bg-gradient-to-br from-cyan-500/20 to-transparent rounded-xl border border-cyan-500/30 p-4 animate-pulse">
-                            <div className="h-2 w-12 bg-cyan-400/50 rounded-full mb-4"></div>
-                            <div className="space-y-2">
-                                <div className="h-1.5 w-full bg-gray-700 rounded-full"></div>
-                                <div className="h-1.5 w-3/4 bg-gray-700 rounded-full"></div>
-                                <div className="h-1.5 w-1/2 bg-gray-700 rounded-full"></div>
+                        <div className="group relative bg-gradient-to-br from-cyan-500/20 to-transparent rounded-xl border border-cyan-500/30 p-4 animate-pulse group-hover:animate-none transition-all duration-300 hover:border-cyan-400/80 hover:bg-cyan-500/20 overflow-hidden cursor-pointer">
+                            {/* Default Lines State */}
+                            <div className="transition-all duration-300 group-hover:opacity-0 group-hover:scale-95">
+                                <div className="h-2 w-12 bg-cyan-400/50 rounded-full mb-4"></div>
+                                <div className="space-y-2">
+                                    <div className="h-1.5 w-full bg-gray-700 rounded-full"></div>
+                                    <div className="h-1.5 w-3/4 bg-gray-700 rounded-full"></div>
+                                    <div className="h-1.5 w-1/2 bg-gray-700 rounded-full"></div>
+                                </div>
+                            </div>
+
+                            {/* Hover Text State */}
+                            <div className="absolute inset-0 p-3 flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-slate-900/95 backdrop-blur-sm border border-cyan-400/40 rounded-xl">
+                                <p className="text-xs font-bold text-cyan-300 leading-tight">
+                                    Hello, I'm Fahad Malik! 👋
+                                </p>
+                                <p className="text-[10px] text-gray-300 mt-1 leading-normal font-medium">
+                                    Creative UI/UX & Brand Designer crafting modern digital experiences.
+                                </p>
                             </div>
                         </div>
-                        <div className="bg-gradient-to-br from-purple-500/20 to-transparent rounded-xl border border-purple-500/30 p-4">
-                            <div className="h-2 w-12 bg-purple-400/50 rounded-full mb-4"></div>
-                            <div className="flex justify-center items-center h-20">
-                                <div className="w-16 h-16 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin"></div>
+                        <div className="group relative bg-gradient-to-br from-purple-500/20 to-transparent rounded-xl border border-purple-500/30 p-4 hover:border-purple-400/80 hover:bg-purple-500/20 overflow-hidden cursor-pointer transition-all duration-300">
+                            {/* Default Spinner State */}
+                            <div className="transition-all duration-300 group-hover:opacity-0 group-hover:scale-95">
+                                <div className="h-2 w-12 bg-purple-400/50 rounded-full mb-4"></div>
+                                <div className="flex justify-center items-center h-20">
+                                    <div className="w-16 h-16 rounded-full border-4 border-purple-500/20 border-t-purple-500 animate-spin"></div>
+                                </div>
+                            </div>
+
+                            {/* Hover Image State */}
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-slate-900/95 backdrop-blur-sm border border-purple-400/40 rounded-xl overflow-hidden flex items-center justify-center p-1">
+                                <img
+                                    src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop"
+                                    alt="Design Showcase"
+                                    className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-2">
+                                    <span className="text-[9px] font-bold text-purple-200 font-mono tracking-wider uppercase">
+                                        Creative Showcase
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                        <div className="col-span-2 bg-slate-800/50 rounded-xl border border-white/5 p-4 overflow-hidden">
-                             <div className="text-[10px] font-mono text-cyan-400 mb-2">// Active Projects</div>
+                        <div className="col-span-2 bg-slate-800/50 rounded-xl border border-white/5 p-3 overflow-hidden">
+                             <div className="flex justify-between items-center mb-2">
+                               <div className="text-[10px] font-mono text-cyan-400">// Active Projects</div>
+                               <div className="flex items-center space-x-1.5">
+                                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                                 <span className="text-[8px] font-mono text-gray-400 uppercase tracking-wider">Auto Cycling</span>
+                               </div>
+                             </div>
                              <div className="grid grid-cols-3 gap-2">
-                                {[1,2,3,4,5,6].map(i => (
-                                    <div key={i} className="h-12 bg-gray-900 rounded-md border border-white/5 flex items-center justify-center">
-                                        <i className={`fas fa-cube text-xs text-gray-600`}></i>
-                                    </div>
-                                ))}
+                               <AnimatePresence mode="popLayout">
+                                 {visibleProjects.map((project, i) => {
+                                   const imgSrc = project.coverImg || project.img;
+                                   return (
+                                     <motion.div
+                                       key={`${project._id || project.title}-${(currentIndex + i) % projects.length}`}
+                                       initial={{ opacity: 0, scale: 0.9, y: 8 }}
+                                       animate={{ opacity: 1, scale: 1, y: 0 }}
+                                       exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                                       transition={{ duration: 0.4, ease: "easeInOut" }}
+                                       onClick={() => {
+                                         if (project._id && !project._id.match(/^[1-6]$/)) {
+                                           navigate(`/project/${project._id}`);
+                                         } else {
+                                           scrollToSection('projects');
+                                         }
+                                       }}
+                                       className="group relative h-14 bg-gray-900/90 rounded-md border border-white/10 overflow-hidden cursor-pointer hover:border-cyan-400/60 transition-all shadow-md"
+                                     >
+                                       {imgSrc ? (
+                                         <img
+                                           src={imgSrc}
+                                           alt={project.title}
+                                           className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-110 transition-all duration-500"
+                                         />
+                                       ) : (
+                                         <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                                           <i className="fas fa-cube text-xs text-cyan-400/50"></i>
+                                         </div>
+                                       )}
+                                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-1.5">
+                                         <span className="text-[8.5px] font-bold text-white truncate leading-tight group-hover:text-cyan-300 transition-colors">
+                                           {project.title}
+                                         </span>
+                                         <span className="text-[7px] text-cyan-400/80 font-mono truncate">
+                                           {project.category}
+                                         </span>
+                                       </div>
+                                     </motion.div>
+                                   );
+                                 })}
+                               </AnimatePresence>
                              </div>
                         </div>
                     </div>
