@@ -42,9 +42,32 @@ const ProjectDetail: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const closeFeedbackPopup = () => {
+    setShowFeedbackPopup(false);
+    try {
+      localStorage.setItem('hasSeenFeedbackPopup', 'true');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
+    try {
+      const hasSeen = localStorage.getItem('hasSeenFeedbackPopup');
+      if (hasSeen === 'true') {
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
     const timer = setTimeout(() => {
       setShowFeedbackPopup(true);
+      try {
+        localStorage.setItem('hasSeenFeedbackPopup', 'true');
+      } catch (e) {
+        console.error(e);
+      }
     }, 6000); // 6 seconds
 
     return () => clearTimeout(timer);
@@ -70,6 +93,11 @@ const ProjectDetail: React.FC = () => {
       });
       if (response.ok) {
         setFeedbackSubmitted(true);
+        try {
+          localStorage.setItem('hasSeenFeedbackPopup', 'true');
+        } catch (err) {
+          console.error(err);
+        }
         setTimeout(() => setShowFeedbackPopup(false), 2000);
       }
     } catch (error) {
@@ -547,7 +575,7 @@ const ProjectDetail: React.FC = () => {
       {showFeedbackPopup && (
         <div 
           className="fixed inset-0 z-[200] flex items-center justify-center px-4 py-6 bg-black/80 backdrop-blur-sm cursor-pointer"
-          onClick={() => setShowFeedbackPopup(false)}
+          onClick={closeFeedbackPopup}
         >
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -565,7 +593,7 @@ const ProjectDetail: React.FC = () => {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setShowFeedbackPopup(false);
+                closeFeedbackPopup();
               }}
               className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-50 shadow-xl cursor-pointer"
             >
