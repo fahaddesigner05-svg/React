@@ -7,6 +7,7 @@ const projectSchema = new mongoose.Schema({
   img: String,
   images: [String],
   coverImg: String,
+  thumbnailImg: String,
   videoLink: String,
   videoLinks: [String],
   figmaLink: String,

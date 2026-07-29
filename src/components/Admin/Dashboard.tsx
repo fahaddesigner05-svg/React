@@ -107,6 +107,7 @@ const Dashboard: React.FC = () => {
   const [isUploadingAboutImage, setIsUploadingAboutImage] = useState(false);
   const [isUploadingProjectImage, setIsUploadingProjectImage] = useState(false);
   const [isUploadingProjectVideo, setIsUploadingProjectVideo] = useState(false);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Message Modal State
@@ -123,6 +124,7 @@ const Dashboard: React.FC = () => {
     img: '',
     images: [] as string[],
     coverImg: '',
+    thumbnailImg: '',
     videoLink: '',
     videoLinks: [] as string[],
     figmaLink: '',
@@ -344,6 +346,28 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      console.warn('Please select a valid image file.');
+      return;
+    }
+    setIsUploadingThumbnail(true);
+    try {
+      const url = await uploadToCloudinary(file);
+      setFormData(prev => ({
+        ...prev,
+        thumbnailImg: url
+      }));
+    } catch (error: any) {
+      console.error('Upload failed:', error.message);
+    } finally {
+      setIsUploadingThumbnail(false);
+      e.target.value = '';
+    }
+  };
+
   const handleUpdateAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingAdmin(true);
@@ -528,6 +552,7 @@ const Dashboard: React.FC = () => {
         img: project.img,
         images: project.images || [],
         coverImg: project.coverImg || project.img,
+        thumbnailImg: project.thumbnailImg || '',
         videoLink: project.videoLink || '',
         videoLinks: project.videoLinks || [],
         figmaLink: project.figmaLink || '',
@@ -549,6 +574,7 @@ const Dashboard: React.FC = () => {
         img: '',
         images: [],
         coverImg: '',
+        thumbnailImg: '',
         videoLink: '',
         videoLinks: [],
         figmaLink: '',
@@ -944,7 +970,7 @@ const Dashboard: React.FC = () => {
                           } else {
                             return (
                               <img 
-                                src={project.coverImg || project.img || undefined} 
+                                src={project.thumbnailImg || project.coverImg || project.img || undefined} 
                                 alt={project.title} 
                                 className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
                                 referrerPolicy="no-referrer"
@@ -1769,6 +1795,69 @@ const Dashboard: React.FC = () => {
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all text-sm"
                   />
                 </div>
+              </div>
+
+              {/* Dedicated Project Thumbnail (Card Cover Only) */}
+              <div className="space-y-4 pt-4 border-t border-white/10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-cyan-400">
+                    Project Thumbnail (Card Cover)
+                  </label>
+                  <span className="text-[11px] font-mono text-cyan-300 font-bold bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-lg w-fit">
+                    RECOMMENDED SIZE: 1200 x 800 PX (16:9 or 3:2 Ratio)
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400">
+                  This thumbnail image will only be displayed on project cards & listings. It will <span className="text-cyan-300 font-bold">NOT</span> appear inside the project detail view.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                  <div className="flex-1 w-full">
+                    <input 
+                      type="text" 
+                      placeholder="Paste Thumbnail Image URL here (e.g., https://...)"
+                      value={formData.thumbnailImg}
+                      onChange={(e) => setFormData({...formData, thumbnailImg: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-cyan-400 outline-none transition-all text-sm"
+                    />
+                  </div>
+                  <label className={`h-[46px] px-5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-2 cursor-pointer transition-all border shrink-0 ${
+                    isUploadingThumbnail 
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40 animate-pulse' 
+                      : 'bg-cyan-500 text-black border-cyan-400 hover:bg-cyan-400 shadow-lg shadow-cyan-500/20'
+                  }`}>
+                    <Upload className="w-4 h-4" />
+                    <span>{isUploadingThumbnail ? 'Uploading...' : 'Upload Thumbnail'}</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleThumbnailUpload} 
+                      disabled={isUploadingThumbnail}
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+
+                {formData.thumbnailImg && (
+                  <div className="relative w-44 h-28 rounded-xl border border-cyan-400/30 overflow-hidden group mt-2 bg-black/40">
+                    <img 
+                      src={formData.thumbnailImg} 
+                      alt="Thumbnail Preview" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, thumbnailImg: ''})}
+                        className="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg"
+                        title="Remove Thumbnail"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -161,7 +161,7 @@ const AllProjects: React.FC = () => {
                           const parent = video.parentElement;
                           if (parent) {
                             const img = document.createElement('img');
-                            img.src = project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
+                            img.src = project.thumbnailImg || project.coverImg || project.img || 'https://picsum.photos/seed/error/800/600';
                             img.className = "w-full h-full object-cover transition-transform duration-700 group-hover:scale-110";
                             img.referrerPolicy = "no-referrer";
                             parent.appendChild(img);
@@ -172,7 +172,7 @@ const AllProjects: React.FC = () => {
                       />
                     ) : (
                       <img 
-                        src={project.coverImg || project.img || undefined} 
+                        src={project.thumbnailImg || project.coverImg || project.img || undefined} 
                         alt={project.title} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         referrerPolicy="no-referrer"

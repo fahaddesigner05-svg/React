@@ -161,8 +161,8 @@ const ProjectDetail: React.FC = () => {
     fetchProject();
   }, [id]);
 
-  const mainImage = project ? (project.coverImg || project.img) : null;
-  const galleryImages = project?.images?.filter(img => img && img.trim() !== '' && img !== mainImage) || [];
+  const mainImage = project ? (project.coverImg || (project.img && project.img !== project.thumbnailImg ? project.img : null)) : null;
+  const galleryImages = project?.images?.filter(img => img && img.trim() !== '' && img !== mainImage && img !== project.thumbnailImg) || [];
   const allImages = mainImage ? [mainImage, ...galleryImages] : galleryImages;
 
   useEffect(() => {
@@ -503,13 +503,13 @@ const ProjectDetail: React.FC = () => {
             ))}
 
             {/* Main Cover Image (Only if no videos or specifically set) */}
-            {(!project.videoLink && (!project.videoLinks || project.videoLinks.length === 0)) && (project.coverImg || project.img) && (
+            {(!project.videoLink && (!project.videoLinks || project.videoLinks.length === 0)) && mainImage && (
               <div 
                 className="w-full cursor-default"
-                onClick={() => setSelectedImage(project.coverImg || project.img)}
+                onClick={() => setSelectedImage(mainImage)}
               >
                 <img 
-                  src={project.coverImg || project.img || undefined} 
+                  src={mainImage} 
                   alt={project.title}
                   className="w-full h-auto transition-transform duration-700 hover:scale-[1.02]"
                   referrerPolicy="no-referrer"
@@ -519,9 +519,7 @@ const ProjectDetail: React.FC = () => {
           </div>
 
           {/* Gallery Images */}
-          {project.images && project.images
-            .filter(img => img && img.trim() !== '' && img !== (project.coverImg || project.img))
-            .map((img, idx) => (
+          {galleryImages.map((img, idx) => (
             <div
               key={idx}
               className="w-full overflow-hidden group cursor-default"
