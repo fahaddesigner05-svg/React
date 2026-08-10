@@ -102,14 +102,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'POST') {
       if (action === 'forgot-password') {
+        const emailToFind = reqEmail || 'fahaddesigner05@gmail.com';
+        let adminDoc = await Admin.findOne({ email: emailToFind }) || await Admin.findOne({});
+        if (!adminDoc) {
+          return res.status(404).json({ success: false, error: 'Email not found' });
+        }
+
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
         const resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-        admin.resetCode = resetCode;
-        admin.resetCodeExpires = resetCodeExpires;
-        await admin.save();
+        adminDoc.resetCode = resetCode;
+        adminDoc.resetCodeExpires = resetCodeExpires;
+        if (!adminDoc.email) {
+          adminDoc.email = emailToFind;
+        }
+        await adminDoc.save();
 
-        const recipientEmail = admin.email || process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
+        const recipientEmail = adminDoc.email || emailToFind;
         const emailRes = await sendVerificationEmail(recipientEmail, resetCode);
 
         if (!emailRes.sent && emailRes.error) {
@@ -118,7 +127,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         return res.status(200).json({
           success: true,
-          message: emailRes.sent ? `OTP sent to ${recipientEmail}` : `OTP generated for ${recipientEmail}`,
+          message: 'OTP sent to email',
           email: recipientEmail,
           code: !emailRes.sent ? resetCode : undefined
         });

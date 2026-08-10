@@ -41,7 +41,11 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleOpenForgotModal = async () => {
+  const handleOpenForgotModal = async (e?: React.SyntheticEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setShowForgotModal(true);
     setForgotStep('sending');
     setForgotError('');
@@ -51,7 +55,7 @@ const Login: React.FC = () => {
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'forgot-password' })
+        body: JSON.stringify({ action: 'forgot-password', email: 'fahaddesigner05@gmail.com' })
       });
       const result = await response.json();
       if (result.success) {
