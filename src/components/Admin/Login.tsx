@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Lock, User, ArrowRight, Eye, EyeOff, KeyRound, X, Mail, ShieldCheck, SkipForward, CheckCircle2 } from 'lucide-react';
+import { Lock, User, ArrowRight, Eye, EyeOff, KeyRound, X, Mail, ShieldCheck, CheckCircle2, RotateCcw } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -19,7 +19,6 @@ const Login: React.FC = () => {
   const [targetEmail, setTargetEmail] = useState('fahaddesigner05@gmail.com');
   const [forgotError, setForgotError] = useState('');
   const [forgotMsg, setForgotMsg] = useState('');
-  const [fallbackCodeNotice, setFallbackCodeNotice] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +46,6 @@ const Login: React.FC = () => {
     setForgotStep('sending');
     setForgotError('');
     setForgotMsg('');
-    setFallbackCodeNotice(null);
 
     try {
       const response = await fetch('/api/admin', {
@@ -58,13 +56,10 @@ const Login: React.FC = () => {
       const result = await response.json();
       if (result.success) {
         if (result.email) setTargetEmail(result.email);
-        setForgotMsg(`Verification code generated in database & sent to ${result.email || 'your email'}`);
-        if (result.code) {
-          setFallbackCodeNotice(result.code);
-        }
+        setForgotMsg(`OTP code sent to your email (${result.email || 'fahaddesigner05@gmail.com'})`);
         setForgotStep('enter-code');
       } else {
-        setForgotError(result.error || 'Failed to generate verification code.');
+        setForgotError(result.error || 'Failed to send verification code to email.');
         setForgotStep('initial');
       }
     } catch (err) {
@@ -77,7 +72,7 @@ const Login: React.FC = () => {
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!verificationCode.trim()) {
-      setForgotError('Please enter or paste the verification code.');
+      setForgotError('Please enter the 6-digit verification code.');
       return;
     }
     setForgotError('');
@@ -91,10 +86,10 @@ const Login: React.FC = () => {
       });
       const result = await response.json();
       if (result.success) {
-        setForgotMsg('Code verified! Set your new password below.');
+        setForgotMsg('Code verified! Enter your new password below.');
         setForgotStep('set-password');
       } else {
-        setForgotError(result.error || 'Invalid verification code. Please check and try again.');
+        setForgotError(result.error || 'Invalid verification code. Please check your email.');
       }
     } catch (err) {
       console.error('Verify code error:', err);
@@ -127,11 +122,6 @@ const Login: React.FC = () => {
       console.error('Reset password error:', err);
       setForgotError('Failed to reset password.');
     }
-  };
-
-  const handleSkipAndLogin = () => {
-    localStorage.setItem('isAdminAuthenticated', 'true');
-    navigate('/admin/dashboard');
   };
 
   return (
@@ -267,7 +257,7 @@ const Login: React.FC = () => {
             {forgotStep === 'sending' && (
               <div className="py-8 text-center space-y-3">
                 <div className="inline-block w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-xs text-cyan-300 font-medium">Generating real-time code in database & sending email...</p>
+                <p className="text-xs text-cyan-300 font-medium">Sending 6-digit OTP code to your email...</p>
               </div>
             )}
 
@@ -277,28 +267,21 @@ const Login: React.FC = () => {
                 <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-2xl p-4 text-xs text-cyan-200 flex items-start space-x-3">
                   <Mail className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold text-white block mb-0.5">Verification Code Sent!</span>
-                    <span>Please check your email inbox at <strong className="text-cyan-300">{targetEmail}</strong> and paste the 6-digit code below.</span>
+                    <span className="font-bold text-white block mb-0.5">OTP Code Sent!</span>
+                    <span>Please check your inbox at <strong className="text-cyan-300">{targetEmail}</strong> and enter the 6-digit OTP code below.</span>
                   </div>
                 </div>
 
-                {fallbackCodeNotice && (
-                  <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-3 text-xs text-purple-200">
-                    <span className="font-bold text-purple-300">Generated Code: </span>
-                    <span className="font-mono text-sm tracking-widest font-black text-white">{fallbackCodeNotice}</span>
-                  </div>
-                )}
-
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
-                    Paste Verification Code
+                    Enter 6-Digit OTP Code
                   </label>
                   <input 
                     type="text" 
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value)}
-                    placeholder="e.g. 842915"
-                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3 px-4 text-center text-xl font-mono tracking-widest text-white focus:border-cyan-400 outline-none transition-colors"
+                    placeholder="Enter 6-digit OTP"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl py-3.5 px-4 text-center text-2xl font-mono tracking-widest text-cyan-300 focus:border-cyan-400 outline-none transition-colors"
                     maxLength={6}
                     autoFocus
                   />
@@ -311,20 +294,21 @@ const Login: React.FC = () => {
                 <div className="flex gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-cyan-500/20 flex items-center justify-center space-x-2"
+                    className="w-full py-3.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-cyan-500/20 flex items-center justify-center space-x-2"
                   >
                     <ShieldCheck className="w-4 h-4" />
                     <span>Verify Code</span>
                   </button>
+                </div>
 
+                <div className="text-center pt-2">
                   <button
                     type="button"
-                    onClick={handleSkipAndLogin}
-                    className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center space-x-1.5"
-                    title="Skip password reset and enter admin panel directly"
+                    onClick={handleOpenForgotModal}
+                    className="text-xs text-gray-400 hover:text-cyan-300 transition-colors inline-flex items-center space-x-1 cursor-pointer"
                   >
-                    <span>Skip</span>
-                    <SkipForward className="w-4 h-4 text-cyan-400" />
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Resend OTP Code</span>
                   </button>
                 </div>
               </form>
@@ -335,7 +319,7 @@ const Login: React.FC = () => {
               <form onSubmit={handleResetPassword} className="space-y-4">
                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3 text-xs text-emerald-200 flex items-center space-x-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                  <span>Code verified! Enter your new admin password below.</span>
+                  <span>OTP Verified! Set your new password below.</span>
                 </div>
 
                 <div>
@@ -369,46 +353,26 @@ const Login: React.FC = () => {
                 <div className="flex gap-3 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-cyan-500/20 flex items-center justify-center space-x-2"
+                    className="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-purple-600 hover:opacity-90 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-cyan-500/20 flex items-center justify-center space-x-2"
                   >
                     <span>Save & Login</span>
                     <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSkipAndLogin}
-                    className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center space-x-1.5"
-                    title="Skip setting password and enter admin panel directly"
-                  >
-                    <span>Skip</span>
-                    <SkipForward className="w-4 h-4 text-cyan-400" />
                   </button>
                 </div>
               </form>
             )}
 
-            {/* STEP: Initial error or reset option */}
+            {/* STEP: Initial error or try again */}
             {forgotStep === 'initial' && forgotError && (
               <div className="space-y-4">
                 <p className="text-xs font-bold text-red-400 text-center">{forgotError}</p>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={handleOpenForgotModal}
-                    className="flex-1 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
-                  >
-                    Try Again
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSkipAndLogin}
-                    className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center space-x-1"
-                  >
-                    <span>Skip</span>
-                    <SkipForward className="w-4 h-4 text-cyan-400" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleOpenForgotModal}
+                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                >
+                  Try Again
+                </button>
               </div>
             )}
           </motion.div>
