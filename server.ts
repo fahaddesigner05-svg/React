@@ -4,6 +4,7 @@ import { createServer as createViteServer } from 'vite';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import nodemailer from 'nodemailer';
 import dbConnect from './src/lib/mongodb';
 import Project from './src/models/Project';
 import Message from './src/models/Message';
@@ -23,6 +24,44 @@ const cloudinaryConfig = {
 };
 
 cloudinary.config(cloudinaryConfig);
+
+async function sendVerificationEmail(recipient: string, code: string) {
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+
+  if (!user || !pass) {
+    console.log(`[Email Notice] EMAIL_USER or EMAIL_PASS not configured. Code generated: ${code}`);
+    return { sent: false, code };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass }
+    });
+
+    await transporter.sendMail({
+      from: `"Admin Security" <${user}>`,
+      to: recipient,
+      subject: 'Your Admin Password Reset Code',
+      text: `Your password reset verification code is: ${code}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto;">
+          <h2 style="color: #38bdf8; margin-top: 0;">Admin Password Reset</h2>
+          <p style="color: #cbd5e1; font-size: 14px;">Use the verification code below to reset your admin portal password:</p>
+          <div style="background-color: #1e293b; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0; border: 1px solid #334155;">
+            <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #38bdf8;">${code}</span>
+          </div>
+          <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">This code will expire in 15 minutes. If you did not request this, please ignore this email.</p>
+        </div>
+      `
+    });
+    return { sent: true };
+  } catch (err) {
+    console.error('Nodemailer error:', err);
+    return { sent: false, error: err };
+  }
+}
 
 
 // Configure Multer (Only for small metadata if needed, but we'll use JSON for projects)
@@ -214,11 +253,56 @@ app.get('/api/admin', async (req, res) => {
 app.post('/api/admin', async (req, res) => {
   try {
     await dbConnect();
-    const { username, password } = req.body;
+    const { action, username, password, code, newPassword } = req.body;
     let admin = await Admin.findOne({});
     if (!admin) {
       admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123' });
     }
+
+    if (action === 'forgot-password') {
+      const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const resetCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+      admin.resetCode = resetCode;
+      admin.resetCodeExpires = resetCodeExpires;
+      await admin.save();
+
+      const recipientEmail = process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
+      const emailRes = await sendVerificationEmail(recipientEmail, resetCode);
+
+      return res.status(200).json({
+        success: true,
+        message: `Verification code sent to ${recipientEmail}`,
+        email: recipientEmail,
+        code: !emailRes.sent ? resetCode : undefined
+      });
+    }
+
+    if (action === 'verify-code') {
+      if (!code || !admin.resetCode) {
+        return res.status(400).json({ success: false, error: 'Verification code is required' });
+      }
+      if (admin.resetCode.trim() !== code.toString().trim()) {
+        return res.status(400).json({ success: false, error: 'Incorrect verification code' });
+      }
+      if (admin.resetCodeExpires && new Date(admin.resetCodeExpires).getTime() < Date.now()) {
+        return res.status(400).json({ success: false, error: 'Verification code has expired. Please request a new one.' });
+      }
+      return res.status(200).json({ success: true, message: 'Code verified successfully' });
+    }
+
+    if (action === 'reset-password') {
+      if (!newPassword) {
+        return res.status(400).json({ success: false, error: 'New password is required' });
+      }
+      admin.password = newPassword;
+      admin.resetCode = undefined;
+      admin.resetCodeExpires = undefined;
+      await admin.save();
+
+      return res.status(200).json({ success: true, message: 'Password reset successfully' });
+    }
+
     if (username === admin.username && password === admin.password) {
       res.status(200).json({ success: true });
     } else {
