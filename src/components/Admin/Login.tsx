@@ -63,18 +63,19 @@ const Login: React.FC = () => {
         setForgotMsg(`OTP code sent to your email (${result.email || 'fahaddesigner05@gmail.com'})`);
         setForgotStep('enter-code');
       } else {
-        setForgotError(result.error || 'Failed to send verification code to email.');
+        setForgotError(result.error || result.message || 'Failed to send verification code to email.');
         setForgotStep('initial');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Forgot password request error:', err);
-      setForgotError('Connection error. Please try again.');
+      setForgotError(err?.message || 'Connection error. Please try again.');
       setForgotStep('initial');
     }
   };
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!verificationCode.trim()) {
       setForgotError('Please enter the 6-digit verification code.');
       return;
@@ -93,16 +94,17 @@ const Login: React.FC = () => {
         setForgotMsg('Code verified! Enter your new password below.');
         setForgotStep('set-password');
       } else {
-        setForgotError(result.error || 'Invalid verification code. Please check your email.');
+        setForgotError(result.error || result.message || 'Invalid verification code. Please check your email.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Verify code error:', err);
-      setForgotError('Failed to verify code.');
+      setForgotError(err?.message || 'Failed to verify code.');
     }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!newPassword.trim()) {
       setForgotError('Please enter a new password.');
       return;
@@ -120,11 +122,11 @@ const Login: React.FC = () => {
         localStorage.setItem('isAdminAuthenticated', 'true');
         navigate('/admin/dashboard');
       } else {
-        setForgotError(result.error || 'Failed to update password.');
+        setForgotError(result.error || result.message || 'Failed to update password.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Reset password error:', err);
-      setForgotError('Failed to reset password.');
+      setForgotError(err?.message || 'Failed to reset password.');
     }
   };
 
