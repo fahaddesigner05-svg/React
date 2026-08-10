@@ -72,7 +72,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'POST') {
       let body = req.body;
-      if (typeof body === 'string') {
+      if (Buffer.isBuffer(body)) {
+        try {
+          body = JSON.parse(body.toString('utf-8'));
+        } catch (e) {
+          // ignore parse error
+        }
+      } else if (typeof body === 'string') {
         try {
           body = JSON.parse(body);
         } catch (e) {
@@ -127,6 +133,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await admin.save();
 
         return res.status(200).json({ success: true, message: 'Password reset successfully' });
+      }
+
+      if (action) {
+        return res.status(400).json({ success: false, error: 'Invalid action requested' });
       }
 
       // Default: login verification

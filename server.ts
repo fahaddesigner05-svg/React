@@ -256,7 +256,13 @@ app.post('/api/admin', async (req, res) => {
   try {
     await dbConnect();
     let body = req.body;
-    if (typeof body === 'string') {
+    if (Buffer.isBuffer(body)) {
+      try {
+        body = JSON.parse(body.toString('utf-8'));
+      } catch (e) {
+        // ignore parse error
+      }
+    } else if (typeof body === 'string') {
       try {
         body = JSON.parse(body);
       } catch (e) {
@@ -312,6 +318,10 @@ app.post('/api/admin', async (req, res) => {
       await admin.save();
 
       return res.status(200).json({ success: true, message: 'Password reset successfully' });
+    }
+
+    if (action) {
+      return res.status(400).json({ success: false, error: 'Invalid action requested' });
     }
 
     if (username === admin.username && password === admin.password) {
