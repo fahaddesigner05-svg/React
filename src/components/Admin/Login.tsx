@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Lock, User, ArrowRight, Eye, EyeOff, KeyRound, X } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -68,7 +69,16 @@ const Login: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                <div className="flex items-center justify-between ml-1">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotModal(true)}
+                    className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors font-medium cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
                   <input 
@@ -119,6 +129,48 @@ const Login: React.FC = () => {
           </button>
         </div>
       </motion.div>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={() => setShowForgotModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm glass-panel bg-[#12141d] p-6 rounded-2xl border border-white/10 shadow-2xl relative"
+          >
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-3 bg-purple-500/10 rounded-xl border border-purple-500/20 text-purple-400">
+                <KeyRound className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Forgot Password?</h3>
+            </div>
+            <p className="text-xs text-gray-300 leading-relaxed mb-4">
+              To reset your admin portal password or recover access, please check your server environment configuration or contact support.
+            </p>
+            <div className="bg-black/40 border border-white/10 rounded-xl p-3 mb-5 text-xs font-mono text-cyan-300 break-all">
+              Contact: fahaddesigner05@gmail.com
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(false)}
+              className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-cyan-500/20"
+            >
+              Close
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
