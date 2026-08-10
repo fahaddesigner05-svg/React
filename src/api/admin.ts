@@ -47,46 +47,60 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     await dbConnect();
 
-    // Ensure at least one admin exists
-    let admin = await Admin.findOne({});
+    // Parse body if needed
+    let body = req.body;
+    if (Buffer.isBuffer(body)) {
+      try {
+        body = JSON.parse(body.toString('utf-8'));
+      } catch (e) {
+        // ignore parse error
+      }
+    } else if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        // ignore parse error
+      }
+    }
+    const { action, username, password, code, newPassword, email: reqEmail } = body || {};
+
+    const targetEmail = reqEmail || process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
+
+    // Ensure at least one admin exists or find by email
+    let admin = await Admin.findOne({ email: targetEmail });
     if (!admin) {
-      admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123' });
+      admin = await Admin.findOne({});
+    }
+    if (!admin) {
+      admin = await Admin.create({
+        username: 'fahadmalik',
+        password: 'fahadmalik123',
+        email: targetEmail
+      });
+    }
+    if (!admin.email) {
+      admin.email = targetEmail;
+      await admin.save();
     }
 
     if (req.method === 'GET') {
-      return res.status(200).json({ success: true, data: { username: admin.username, password: admin.password } });
+      return res.status(200).json({ success: true, data: { username: admin.username, password: admin.password, email: admin.email } });
     }
 
     if (req.method === 'PUT') {
-      const { username, password } = req.body;
-      if (!username || !password) {
+      const { username: newUsername, password: newPasswordPut } = body || {};
+      if (!newUsername || !newPasswordPut) {
         return res.status(400).json({ success: false, error: 'Username and password are required' });
       }
 
-      admin.username = username;
-      admin.password = password;
+      admin.username = newUsername;
+      admin.password = newPasswordPut;
       await admin.save();
 
-      return res.status(200).json({ success: true, data: { username: admin.username, password: admin.password } });
+      return res.status(200).json({ success: true, data: { username: admin.username, password: admin.password, email: admin.email } });
     }
 
     if (req.method === 'POST') {
-      let body = req.body;
-      if (Buffer.isBuffer(body)) {
-        try {
-          body = JSON.parse(body.toString('utf-8'));
-        } catch (e) {
-          // ignore parse error
-        }
-      } else if (typeof body === 'string') {
-        try {
-          body = JSON.parse(body);
-        } catch (e) {
-          // ignore parse error
-        }
-      }
-      const { action, username, password, code, newPassword } = body || {};
-
       if (action === 'forgot-password') {
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
         const resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -95,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         admin.resetCodeExpires = resetCodeExpires;
         await admin.save();
 
-        const recipientEmail = process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
+        const recipientEmail = admin.email || process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
         const emailRes = await sendVerificationEmail(recipientEmail, resetCode);
 
         if (!emailRes.sent && emailRes.error) {
@@ -127,12 +141,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!newPassword) {
           return res.status(400).json({ success: false, error: 'New password is required' });
         }
+
+        // Verify code if provided
+        if (code && admin.resetCode) {
+          if (admin.resetCode.trim() !== code.toString().trim()) {
+            return res.status(400).json({ success: false, error: 'Incorrect verification code' });
+          }
+          if (admin.resetCodeExpires && new Date(admin.resetCodeExpires).getTime() < Date.now()) {
+            return res.status(400).json({ success: false, error: 'Verification code has expired' });
+          }
+        }
+
         admin.password = newPassword;
         admin.resetCode = undefined;
         admin.resetCodeExpires = undefined;
         await admin.save();
 
-        return res.status(200).json({ success: true, message: 'Password reset successfully' });
+        return res.status(200).json({ success: true, message: 'Password updated successfully' });
       }
 
       if (action) {

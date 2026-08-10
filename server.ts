@@ -242,11 +242,12 @@ app.delete('/api/messages', async (req, res) => {
 app.get('/api/admin', async (req, res) => {
   try {
     await dbConnect();
-    let admin = await Admin.findOne({});
+    const targetEmail = process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
+    let admin = await Admin.findOne({ email: targetEmail }) || await Admin.findOne({});
     if (!admin) {
-      admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123' });
+      admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123', email: targetEmail });
     }
-    res.status(200).json({ success: true, data: { username: admin.username, password: admin.password } });
+    res.status(200).json({ success: true, data: { username: admin.username, password: admin.password, email: admin.email } });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -269,11 +270,17 @@ app.post('/api/admin', async (req, res) => {
         // ignore parse error
       }
     }
-    const { action, username, password, code, newPassword } = body || {};
+    const { action, username, password, code, newPassword, email: reqEmail } = body || {};
 
-    let admin = await Admin.findOne({});
+    const targetEmail = reqEmail || process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
+
+    let admin = await Admin.findOne({ email: targetEmail }) || await Admin.findOne({});
     if (!admin) {
-      admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123' });
+      admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123', email: targetEmail });
+    }
+    if (!admin.email) {
+      admin.email = targetEmail;
+      await admin.save();
     }
 
     if (action === 'forgot-password') {
@@ -284,7 +291,7 @@ app.post('/api/admin', async (req, res) => {
       admin.resetCodeExpires = resetCodeExpires;
       await admin.save();
 
-      const recipientEmail = process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
+      const recipientEmail = admin.email || process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
       const emailRes = await sendVerificationEmail(recipientEmail, resetCode);
 
       return res.status(200).json({
@@ -312,12 +319,23 @@ app.post('/api/admin', async (req, res) => {
       if (!newPassword) {
         return res.status(400).json({ success: false, error: 'New password is required' });
       }
+
+      // Verify code if provided
+      if (code && admin.resetCode) {
+        if (admin.resetCode.trim() !== code.toString().trim()) {
+          return res.status(400).json({ success: false, error: 'Incorrect verification code' });
+        }
+        if (admin.resetCodeExpires && new Date(admin.resetCodeExpires).getTime() < Date.now()) {
+          return res.status(400).json({ success: false, error: 'Verification code has expired' });
+        }
+      }
+
       admin.password = newPassword;
       admin.resetCode = undefined;
       admin.resetCodeExpires = undefined;
       await admin.save();
 
-      return res.status(200).json({ success: true, message: 'Password reset successfully' });
+      return res.status(200).json({ success: true, message: 'Password updated successfully' });
     }
 
     if (action) {
