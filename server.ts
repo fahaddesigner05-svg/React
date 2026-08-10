@@ -59,9 +59,9 @@ async function sendVerificationEmail(recipient: string, code: string) {
       `
     });
     return { sent: true };
-  } catch (err) {
+  } catch (err: any) {
     console.error('Nodemailer error:', err);
-    return { sent: false, error: err };
+    return { sent: false, error: err?.message || 'Email transport error' };
   }
 }
 
