@@ -26,8 +26,8 @@ const cloudinaryConfig = {
 cloudinary.config(cloudinaryConfig);
 
 async function sendVerificationEmail(recipient: string, code: string) {
-  const user = process.env.EMAIL_USER;
-  const pass = process.env.EMAIL_PASS;
+  const user = process.env.EMAIL_USER ? process.env.EMAIL_USER.trim() : '';
+  const pass = process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : '';
 
   if (!user || !pass) {
     console.log(`[Email Notice] EMAIL_USER or EMAIL_PASS not configured. Code generated: ${code}`);
@@ -36,14 +36,16 @@ async function sendVerificationEmail(recipient: string, code: string) {
 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: { user, pass }
     });
 
     await transporter.sendMail({
       from: `"Admin Security" <${user}>`,
       to: recipient,
-      subject: 'Your Admin Password Reset Code',
+      subject: 'Your Admin Password Reset Code (OTP)',
       text: `Your password reset verification code is: ${code}`,
       html: `
         <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #ffffff; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto;">
@@ -52,7 +54,7 @@ async function sendVerificationEmail(recipient: string, code: string) {
           <div style="background-color: #1e293b; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0; border: 1px solid #334155;">
             <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #38bdf8;">${code}</span>
           </div>
-          <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">This code will expire in 15 minutes. If you did not request this, please ignore this email.</p>
+          <p style="color: #64748b; font-size: 12px; margin-bottom: 0;">This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
         </div>
       `
     });
