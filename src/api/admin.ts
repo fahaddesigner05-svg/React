@@ -69,11 +69,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'POST') {
-      const { action, username, password, code, newPassword } = req.body;
+      let body = req.body;
+      if (typeof body === 'string') {
+        try {
+          body = JSON.parse(body);
+        } catch (e) {
+          // ignore parse error
+        }
+      }
+      const { action, username, password, code, newPassword } = body || {};
 
       if (action === 'forgot-password') {
         const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const resetCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+        const resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
         admin.resetCode = resetCode;
         admin.resetCodeExpires = resetCodeExpires;
@@ -82,9 +90,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const recipientEmail = process.env.EMAIL_USER || 'fahaddesigner05@gmail.com';
         const emailRes = await sendVerificationEmail(recipientEmail, resetCode);
 
+        if (!emailRes.sent && emailRes.error) {
+          console.error('Failed sending email via Nodemailer:', emailRes.error);
+        }
+
         return res.status(200).json({
           success: true,
-          message: `Verification code sent to ${recipientEmail}`,
+          message: emailRes.sent ? `OTP sent to ${recipientEmail}` : `OTP generated for ${recipientEmail}`,
           email: recipientEmail,
           code: !emailRes.sent ? resetCode : undefined
         });

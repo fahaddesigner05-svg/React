@@ -253,7 +253,16 @@ app.get('/api/admin', async (req, res) => {
 app.post('/api/admin', async (req, res) => {
   try {
     await dbConnect();
-    const { action, username, password, code, newPassword } = req.body;
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        // ignore parse error
+      }
+    }
+    const { action, username, password, code, newPassword } = body || {};
+
     let admin = await Admin.findOne({});
     if (!admin) {
       admin = await Admin.create({ username: 'fahadmalik', password: 'fahadmalik123' });
@@ -261,7 +270,7 @@ app.post('/api/admin', async (req, res) => {
 
     if (action === 'forgot-password') {
       const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-      const resetCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+      const resetCodeExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
       admin.resetCode = resetCode;
       admin.resetCodeExpires = resetCodeExpires;
@@ -272,7 +281,7 @@ app.post('/api/admin', async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: `Verification code sent to ${recipientEmail}`,
+        message: emailRes.sent ? `OTP sent to ${recipientEmail}` : `OTP generated for ${recipientEmail}`,
         email: recipientEmail,
         code: !emailRes.sent ? resetCode : undefined
       });
